@@ -12,6 +12,7 @@
     "dev": "APP_ENV=local varlock run -- tsx watch src/index.ts",
     "build": "tsc",
     "start": "APP_ENV=local varlock run -- node dist/index.js",
+    "kill": "lsof -ti:3001 | xargs kill -9 2>/dev/null || echo 'No process on port 3001'",
     "test": "APP_ENV=local varlock run -- vitest",
     "test:run": "APP_ENV=local varlock run -- vitest run",
     "test:ui": "APP_ENV=local varlock run -- vitest --ui",
