@@ -9,19 +9,19 @@
     "pnpm": "10.28.0"
   },
   "scripts": {
-    "dev": "tsx watch src/index.ts",
+    "dev": "APP_ENV=local varlock run -- tsx watch src/index.ts",
     "build": "tsc",
-    "start": "node dist/index.js",
-    "test": "vitest",
-    "test:run": "vitest run",
-    "test:ui": "vitest ui",
-    "db:migrate": "dbmate up",
-    "db:seed": "psql $DATABASE_URL -f db/seed.sql"
+    "start": "APP_ENV=local varlock run -- node dist/index.js",
+    "test": "APP_ENV=local varlock run -- vitest",
+    "test:run": "APP_ENV=local varlock run -- vitest run",
+    "test:ui": "APP_ENV=local varlock run -- vitest ui",
+    "db:migrate": "APP_ENV=local varlock run -- dbmate up",
+    "db:seed": "APP_ENV=local varlock run -- psql $DATABASE_URL -f db/seed.sql"
   },
   "dependencies": {
     "@hono/node-server": "1.13.7",
+    "@varlock/bitwarden-plugin": "0.0.6",
     "bcryptjs": "2.4.3",
-    "dotenv": "17.4.2",
     "hono": "4.6.14",
     "pino": "9.5.0",
     "postgres": "3.4.5",

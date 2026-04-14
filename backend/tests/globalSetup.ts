@@ -7,14 +7,13 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 let serverProcess: ReturnType<typeof spawn> | null = null;
 
 export async function setup() {
-  const serverPath = join(__dirname, '../src/index.ts');
-  
-  serverProcess = spawn('npx', ['tsx', 'watch', 'src/index.ts'], {
+  serverProcess = spawn('pnpm', ['exec', 'varlock', 'run', '--', 'tsx', 'src/index.ts'], {
     cwd: join(__dirname, '..'),
     stdio: 'pipe',
+    shell: true,
   });
   
-  await new Promise(resolve => setTimeout(resolve, 3000));
+  await new Promise(resolve => setTimeout(resolve, 5000));
 }
 
 export async function teardown() {

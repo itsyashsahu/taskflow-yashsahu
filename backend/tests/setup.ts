@@ -1,5 +1,2 @@
-import dotenv from 'dotenv';
-
-dotenv.config({ path: './env/.env.local' });
-
+// varlock handles environment variables via globalSetup
 export {};
