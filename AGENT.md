@@ -1,28 +1,36 @@
 # Agent Guidelines
 
 ## Documentation References
-- **Backend Spec:** `backend.md`
-- **Frontend Spec:** `frontend.md`
-- **Changelog:** `CHANGELOG.md`
+- **Backend Spec:** `backend.md` - Full backend implementation details
+- **Frontend Spec:** `frontend.md` - Full frontend implementation details
+- **Changelog:** `CHANGELOG.md` - Version history and changes
 
-## Commit Rules
+## Core Rules
 
 ### Always Update Changelog
-Before committing, add a short entry to CHANGELOG.md under the current version:
+When committing changes, ALWAYS update CHANGELOG.md first with a short entry describing:
+- New features added
+- Changes to existing functionality
+- Bug fixes
+- Breaking changes
 
+Format:
 ```markdown
-## v1.0.1 - Description
-
 ### Added/Fixed/Changed
 - Brief description of change
 ```
 
-### Version Format
-- v1.0.0 - Initial
-- v1.0.1 - Logging, Request ID
-- Increment patch for fixes, minor for features
+### Versioning
+- Start with v1.0.0
+- Increment patch for fixes, minor for features, major for breaking
 
-## Before Commit
-1. Update CHANGELOG.md
-2. Verify no secrets (.env not staged)
-3. Check TypeScript compiles
+## Before Committing
+1. Update CHANGELOG.md with changes
+2. Ensure no secrets in staged files (check .env)
+3. Run tests if available
+4. Verify TypeScript compiles
+
+## Important Notes
+- .env contains database credentials - NEVER commit
+- Use exact versions in package.json (no ^)
+- Node 22.19.0, pnpm 10.28.0

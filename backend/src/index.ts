@@ -3,10 +3,11 @@ import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 
-import { sql } from "./db/client.js";
-import { baseLog, getRequestLogger } from "./lib/logger.js";
+import { sql } from "./db/client.js"
+import { baseLog, getRequestLogger } from "./lib/logger.js"
 import { requestIdMiddleware } from "./middleware/request-id.js";
 import { loggerMiddleware } from "./middleware/logger.js";
+import { transactionMiddleware } from "./middleware/transaction.js";
 import { requireAuth } from "./middleware/auth.js";
 import authRoutes from "./routes/auth.js";
 import projectRoutes from "./routes/projects.js";
@@ -19,6 +20,7 @@ app.get("/health", (c) => c.json({ status: "ok" }));
 
 app.use("*", requestIdMiddleware);
 app.use("*", loggerMiddleware);
+app.use("*", transactionMiddleware);
 app.use("*", cors());
 
 app.use("/projects/*", requireAuth);

@@ -1,16 +1,21 @@
 # TaskFlow Backend Changelog
 
-## v1.0.1 - Logging, Request ID & Health
+## v1.0.2 - Transaction Middleware
+
+### Added
+- Transaction middleware: wraps POST/PUT/DELETE routes in DB transactions
+- Auto-rollback on errors
+- GET routes bypass transaction for performance
+
+## v1.0.1 - Logging & Request ID
 
 ### Added
 - Request ID middleware: reads x-request-id header or generates UUID
-- Logger middleware: request-scoped logging with requestId in every log
+- Logger middleware: request-scoped logging with requestId
 - Console.* methods redirected to pino logger
 - .nvmrc (Node 22.19.0), .npmrc (pnpm 10.28.0, exact versions)
 - TypeScript types for requestId/auth variables
 - DB setup scripts
-- GET /health endpoint returns { status: "ok" }
-- Removed pid/hostname from logs, ISO timestamp
 
 ### Each Request Now Has
 - Unique requestId (from header or UUID)
