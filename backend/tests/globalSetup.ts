@@ -9,11 +9,14 @@ let serverProcess: ReturnType<typeof spawn> | null = null;
 export async function setup() {
   serverProcess = spawn('pnpm', ['exec', 'varlock', 'run', '--', 'tsx', 'src/index.ts'], {
     cwd: join(__dirname, '..'),
-    stdio: 'pipe',
+    stdio: ['ignore', 'pipe', 'pipe'],
     shell: true,
   });
+
+  serverProcess.stdout?.on('data', (data) => console.log('[server]', data.toString()));
+  serverProcess.stderr?.on('data', (data) => console.log('[server err]', data.toString()));
   
-  await new Promise(resolve => setTimeout(resolve, 5000));
+  await new Promise(resolve => setTimeout(resolve, 6000));
 }
 
 export async function teardown() {

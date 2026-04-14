@@ -14,7 +14,7 @@
     "start": "APP_ENV=local varlock run -- node dist/index.js",
     "test": "APP_ENV=local varlock run -- vitest",
     "test:run": "APP_ENV=local varlock run -- vitest run",
-    "test:ui": "APP_ENV=local varlock run -- vitest ui",
+    "test:ui": "APP_ENV=local varlock run -- vitest --ui",
     "db:migrate": "APP_ENV=local varlock run -- dbmate up",
     "db:seed": "APP_ENV=local varlock run -- psql $DATABASE_URL -f db/seed.sql"
   },
