@@ -1,5 +1,14 @@
 # TaskFlow Backend Changelog
 
+## v1.0.2 - Transaction Middleware + Varlock
+
+### Added
+- Transaction middleware: wraps POST/PUT/DELETE routes in DB transactions
+- Auto-rollback on errors
+- GET routes bypass transaction for performance
+- GetDb helper for transaction access
+- Varlock + Bitwarden setup (.env.schema, env/.env.local)
+
 ## v1.0.2 - Transaction Middleware
 
 ### Added
