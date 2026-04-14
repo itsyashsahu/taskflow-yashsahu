@@ -6,8 +6,12 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, _hasHydrated } = useAuth()
   const location = useLocation()
+
+  if (!_hasHydrated) {
+    return null
+  }
 
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />
