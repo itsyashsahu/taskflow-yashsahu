@@ -1,5 +1,12 @@
 # TaskFlow Backend Changelog
 
+## v1.0.3 - Env Example Relocation
+
+### Changed
+- Moved env example files from `backend/.env.example` and `frontend/.env.example` to `backend/env/.env.example` and `frontend/env/.env.example`
+- Updated ignore rules so `env/.env.example` stays tracked while local env files remain ignored
+- Updated setup docs to copy env examples from the new `env/` locations
+
 ## v1.0.2 - Transaction Middleware + Varlock
 
 ### Added

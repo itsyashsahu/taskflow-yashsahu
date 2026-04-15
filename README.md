@@ -46,9 +46,12 @@ Commands:
 ```bash
 git clone <your-repo-url>
 cd taskflow
-cp .env.example .env
+cp backend/env/.env.example backend/env/.env.local
+cp frontend/env/.env.example frontend/env/.env.local
 docker compose up
 ```
+
+Optional: create a root `.env` only if you want to override Docker Compose defaults (`POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, `BACKEND_PORT`, `FRONTEND_PORT`, `VITE_API_URL`, etc.).
 
 Services:
 - Frontend: http://localhost:5173
