@@ -4,9 +4,12 @@ import { ProtectedRoute } from "~/components/layout/ProtectedRoute"
 import { useAuth } from "~/store/auth"
 import { Loader2 } from "lucide-react"
 import { Logo } from "~/components/Logo"
+import { useDataUpdates } from "~/api/hooks"
 
 export default function Layout() {
   const { _hasHydrated } = useAuth()
+
+  useDataUpdates()
 
   if (!_hasHydrated) {
     return (

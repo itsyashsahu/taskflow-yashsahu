@@ -1,12 +1,8 @@
 import { useQuery } from "@tanstack/react-query"
 import { usersApi } from "~/api/users"
+import { userKeys } from "~/api/query-keys"
 
-export const USERS_KEY = ["users"]
-export const userKeys = {
-  all: USERS_KEY,
-  list: () => [...USERS_KEY, "list"],
-  tasks: (userId: string) => [...USERS_KEY, "tasks", userId],
-}
+export { userKeys }
 
 export function useUsers() {
   return useQuery({

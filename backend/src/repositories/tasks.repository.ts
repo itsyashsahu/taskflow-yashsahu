@@ -1,5 +1,6 @@
 import type { Database } from "../lib/context.js"
 import type { TaskRow } from "./projects.repository.js"
+import { emitDataUpdate } from "../lib/events.js"
 
 export const tasksRepository = {
   listForProject: async (
@@ -53,6 +54,10 @@ export const tasksRepository = {
         NULL::text AS assignee_email
     `
 
+    if (task) {
+      emitDataUpdate("create", "task", task.id, { projectId })
+    }
+
     return task
   },
 
@@ -101,6 +106,10 @@ export const tasksRepository = {
         NULL::text AS assignee_email
     `
 
+    if (task) {
+      emitDataUpdate("update", "task", task.id, { projectId: task.project_id })
+    }
+
     return task ?? null
   },
 
@@ -109,5 +118,6 @@ export const tasksRepository = {
       DELETE FROM tasks
       WHERE id = ${id}
     `
+    emitDataUpdate("delete", "task", id)
   },
 }

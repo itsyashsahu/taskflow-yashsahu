@@ -1,4 +1,5 @@
 import type { Database } from "../lib/context.js"
+import { emitDataUpdate } from "../lib/events.js"
 
 export type ProjectRow = {
   id: string
@@ -72,6 +73,10 @@ export const projectsRepository = {
       RETURNING id, name, description, owner_id, created_at
     `
 
+    if (project) {
+      emitDataUpdate("create", "project", project.id)
+    }
+
     return project
   },
 
@@ -127,6 +132,10 @@ export const projectsRepository = {
       RETURNING id, name, description, owner_id, created_at
     `
 
+    if (project) {
+      emitDataUpdate("update", "project", project.id)
+    }
+
     return project ?? null
   },
 
@@ -135,6 +144,7 @@ export const projectsRepository = {
       DELETE FROM projects
       WHERE id = ${id}
     `
+    emitDataUpdate("delete", "project", id)
   },
 
   getStats: async (db: Database, id: string) => {

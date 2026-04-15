@@ -7,8 +7,9 @@ import {
 import { authApi } from "~/api/auth"
 import { useAuthStore } from "~/store/auth"
 import type { AuthResponse } from "~/api/auth"
+import { authKeys } from "~/api/query-keys"
 
-export const AUTH_KEY = ["auth"]
+export { authKeys }
 
 export function useLogin() {
   const queryClient = useQueryClient()
@@ -24,7 +25,7 @@ export function useLogin() {
     }) => authApi.login(email, password),
     onSuccess: (data: AuthResponse) => {
       login(data.user, data.token)
-      queryClient.setQueryData(AUTH_KEY, data)
+      queryClient.setQueryData(authKeys.me(), data)
     },
   })
 
@@ -47,7 +48,7 @@ export function useRegister() {
     }) => authApi.register(name, email, password),
     onSuccess: (data: AuthResponse) => {
       login(data.user, data.token)
-      queryClient.setQueryData(AUTH_KEY, data)
+      queryClient.setQueryData(authKeys.me(), data)
     },
   })
 

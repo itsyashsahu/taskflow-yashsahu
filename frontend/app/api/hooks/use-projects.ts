@@ -6,14 +6,9 @@ import {
 import { projectsApi, type CreateProjectInput, type UpdateProjectInput, type Task, type CreateTaskInput, type UpdateTaskInput } from "~/api/projects"
 import { tasksApi } from "~/api/tasks"
 import type { Project, ProjectWithTasks } from "~/api/projects"
+import { projectKeys, userKeys } from "~/api/query-keys"
 
-export const PROJECTS_KEY = ["projects"]
-export const projectKeys = {
-  all: PROJECTS_KEY,
-  list: () => [...PROJECTS_KEY, "list"],
-  detail: (id: string) => [...PROJECTS_KEY, "detail", id],
-  tasks: (id: string) => [...PROJECTS_KEY, "tasks", id],
-}
+export { projectKeys }
 
 export function useProjects() {
   return useQuery({

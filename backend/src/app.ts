@@ -10,6 +10,7 @@ import authRoutes from "./routes/auth.js"
 import projectRoutes from "./routes/projects.js"
 import taskRoutes from "./routes/tasks.js"
 import userRoutes from "./routes/users.js"
+import sseRoutes from "./routes/sse.js"
 
 export const app = new Hono<{ Variables: AppVariables }>()
 
@@ -27,12 +28,14 @@ app.use("*", cors({
 app.use("/projects/*", requireAuth)
 app.use("/tasks/*", requireAuth)
 app.use("/users/*", requireAuth)
+app.use("/data-updates", requireAuth)
 
 app.route("/auth", authRoutes)
 app.route("/projects", projectRoutes)
 app.route("/projects", taskRoutes) // tasks mounted under /projects (e.g., /projects/:id/tasks)
 app.route("/tasks", taskRoutes) // tasks mounted under /tasks/:id for update/delete
 app.route("/users", userRoutes)
+app.route("/data-updates", sseRoutes)
 
 app.notFound((c) => c.json({ error: "not found" }, 404))
 
