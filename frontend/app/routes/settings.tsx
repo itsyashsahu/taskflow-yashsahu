@@ -13,6 +13,7 @@ import {
   CardTitle,
 } from "~/components/ui/card"
 import { useAuthStore } from "~/store/auth"
+import { useTheme } from "~/components/theme-provider"
 import { toast } from "sonner"
 
 function getInitials(name: string) {
@@ -35,28 +36,15 @@ export default function Settings() {
   const [confirmPassword, setConfirmPassword] = useState("")
   const [showPasswords, setShowPasswords] = useState(false)
 
-  const [theme, setTheme] = useState<"light" | "dark" | "system">(() => {
-    const stored = localStorage.getItem("taskflow-theme")
-    return (stored as "light" | "dark" | "system") || "system"
-  })
+  const { theme, setTheme } = useTheme()
 
-  const handleThemeChange = (newTheme: "light" | "dark" | "system") => {
-    setTheme(newTheme)
-    localStorage.setItem("taskflow-theme", newTheme)
-
-    if (newTheme === "dark") {
-      document.documentElement.classList.add("dark")
-    } else if (newTheme === "light") {
-      document.documentElement.classList.remove("dark")
-    } else {
-      if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-        document.documentElement.classList.add("dark")
-      } else {
-        document.documentElement.classList.remove("dark")
-      }
+  const handleThemeChange = async (newTheme: "light" | "dark" | "system") => {
+    try {
+      await setTheme(newTheme)
+      toast.success(`Theme changed to ${newTheme}`)
+    } catch (error: any) {
+      toast.error(error.message || "Failed to update theme")
     }
-
-    toast.success(`Theme changed to ${newTheme}`)
   }
 
   const handleProfileSave = () => {

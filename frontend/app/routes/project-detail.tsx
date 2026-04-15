@@ -6,6 +6,7 @@ import {
   closestCorners,
   KeyboardSensor,
   PointerSensor,
+  useDroppable,
   useSensor,
   useSensors,
   type DragStartEvent,
@@ -111,6 +112,8 @@ function BoardColumn({
   onTaskClick,
   onAddTask,
 }: BoardColumnProps) {
+  const { setNodeRef, isOver } = useDroppable({ id: status })
+
   const columnColors: Record<string, string> = {
     todo: "bg-muted",
     in_progress: "bg-indigo-50 dark:bg-indigo-950/20",
@@ -134,7 +137,12 @@ function BoardColumn({
         </Button>
       </div>
 
-      <div className="flex-1 space-y-2 overflow-y-auto p-2 min-h-[200px]">
+      <div
+        ref={setNodeRef}
+        className={`flex-1 space-y-2 overflow-y-auto p-2 min-h-[200px] rounded-b-lg transition-colors ${
+          isOver ? "bg-primary/5" : ""
+        }`}
+      >
         <SortableContext
           items={tasks.map((t) => t.id)}
           strategy={verticalListSortingStrategy}
@@ -218,10 +226,21 @@ export default function ProjectDetail() {
     if (!event.over || !project) return
 
     const taskId = event.active.id as string
-    const newStatus = event.over.id as Task["status"]
+    const overId = String(event.over.id)
+    const validStatuses: Task["status"][] = ["todo", "in_progress", "done"]
+
+    let newStatus: Task["status"] | null = null
+    if (validStatuses.includes(overId as Task["status"])) {
+      newStatus = overId as Task["status"]
+    } else {
+      const overTask = project.tasks.find((t) => t.id === overId)
+      if (overTask) {
+        newStatus = overTask.status
+      }
+    }
 
     const task = project.tasks.find((t) => t.id === taskId)
-    if (!task || task.status === newStatus) return
+    if (!task || !newStatus || task.status === newStatus) return
 
     try {
       await updateTask.mutateAsync({
@@ -285,7 +304,9 @@ export default function ProjectDetail() {
   }
 
   const filteredTasks = project.tasks.filter((task) => {
-    if (statusFilter !== "all" && task.status !== statusFilter) return false
+    if (viewMode === "list" && statusFilter !== "all" && task.status !== statusFilter) {
+      return false
+    }
     if (assigneeFilter !== "all" && task.assignee_id !== assigneeFilter) return false
     return true
   })

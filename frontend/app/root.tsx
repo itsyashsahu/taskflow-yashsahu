@@ -10,6 +10,7 @@ import {
 import type { Route } from "./+types/root"
 import { QueryProvider } from "~/lib/query-provider"
 import { Toaster } from "~/components/ui/sonner"
+import { ThemeProvider } from "~/components/theme-provider"
 import "./app.css"
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -18,13 +19,38 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        {/* Prevent theme flash on initial load - runs during HTML parsing */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                const theme = localStorage.getItem('taskflow-theme') || 'system';
+                const root = document.documentElement;
+                
+                if (theme === 'dark') {
+                  root.classList.add('dark');
+                } else if (theme === 'light') {
+                  root.classList.remove('dark');
+                } else {
+                  if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    root.classList.add('dark');
+                  } else {
+                    root.classList.remove('dark');
+                  }
+                }
+              })();
+            `,
+          }}
+        />
         <Meta />
         <Links />
       </head>
       <body>
         <QueryProvider>
-          {children}
-          <Toaster />
+          <ThemeProvider defaultTheme="system" storageKey="taskflow-theme">
+            {children}
+            <Toaster />
+          </ThemeProvider>
         </QueryProvider>
         <ScrollRestoration />
         <Scripts />

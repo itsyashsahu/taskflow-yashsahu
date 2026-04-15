@@ -96,6 +96,7 @@ export function useCreateTask() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: projectKeys.detail(variables.projectId) })
       queryClient.invalidateQueries({ queryKey: projectKeys.tasks(variables.projectId) })
+      queryClient.invalidateQueries({ queryKey: ["users"] })
     },
   })
 }
@@ -108,13 +109,14 @@ export function useUpdateTask() {
       tasksApi.update(id, data),
     onMutate: async ({ id, data, projectId }) => {
       await queryClient.cancelQueries({ queryKey: projectKeys.detail(projectId) })
-      const previousProject = queryClient.getQueryData<{ project: ProjectWithTasks }>(projectKeys.detail(projectId))
+      const previousProject = queryClient.getQueryData<ProjectWithTasks>(projectKeys.detail(projectId))
       if (previousProject) {
-        const updatedTasks = previousProject.project.tasks.map((task) =>
+        const updatedTasks = (previousProject.tasks ?? []).map((task) =>
           task.id === id ? { ...task, ...data } : task
         )
         queryClient.setQueryData(projectKeys.detail(projectId), {
-          project: { ...previousProject.project, tasks: updatedTasks }
+          ...previousProject,
+          tasks: updatedTasks,
         })
       }
       return { previousProject }
@@ -130,6 +132,7 @@ export function useUpdateTask() {
     onSettled: (_, __, variables) => {
       queryClient.invalidateQueries({ queryKey: projectKeys.detail(variables.projectId) })
       queryClient.invalidateQueries({ queryKey: projectKeys.tasks(variables.projectId) })
+      queryClient.invalidateQueries({ queryKey: ["users"] })
     },
   })
 }
@@ -143,6 +146,7 @@ export function useDeleteTask() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: projectKeys.detail(variables.projectId) })
       queryClient.invalidateQueries({ queryKey: projectKeys.tasks(variables.projectId) })
+      queryClient.invalidateQueries({ queryKey: ["users"] })
     },
   })
 }

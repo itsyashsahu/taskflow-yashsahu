@@ -27,6 +27,7 @@ app.use("/users/*", requireAuth)
 app.route("/auth", authRoutes)
 app.route("/projects", projectRoutes)
 app.route("/projects", taskRoutes) // tasks mounted under /projects (e.g., /projects/:id/tasks)
+app.route("/tasks", taskRoutes) // tasks mounted under /tasks/:id for update/delete
 app.route("/users", userRoutes)
 
 app.notFound((c) => c.json({ error: "not found" }, 404))

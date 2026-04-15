@@ -5,6 +5,7 @@ export type UserRow = {
   name: string
   email: string
   created_at: string
+  theme: string
   todo_count: string
   in_progress_count: string
   done_count: string
@@ -45,13 +46,24 @@ export const usersRepository = {
   },
 
   getById: async (db: Database, id: string) => {
-    const [user] = await db<Pick<UserRow, "id" | "name" | "email" | "created_at">[]>`
-      SELECT id, name, email, created_at
+    const [user] = await db<Pick<UserRow, "id" | "name" | "email" | "created_at" | "theme">[]>`
+      SELECT id, name, email, created_at, theme
       FROM users
       WHERE id = ${id}
     `
 
     return user ?? null
+  },
+
+  updateTheme: async (db: Database, id: string, theme: "light" | "dark" | "system") => {
+    const [updated] = await db<Pick<UserRow, "id" | "name" | "email" | "theme">[]>`
+      UPDATE users
+      SET theme = ${theme}
+      WHERE id = ${id}
+      RETURNING id, name, email, theme
+    `
+
+    return updated ?? null
   },
 
   listAssignedTasks: async (db: Database, userId: string) => {

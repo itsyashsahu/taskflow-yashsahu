@@ -34,7 +34,24 @@ export interface UserWithTasks {
   projects: ProjectTasks[]
 }
 
+export interface UserPreferences {
+  id: string
+  name: string
+  email: string
+  created_at: string
+  theme: "light" | "dark" | "system"
+}
+
 export const usersApi = {
+  getCurrentUser: async (): Promise<{ user: UserPreferences }> => {
+    return requestJson(api.users.me.$get())
+  },
+
+  updateTheme: async (
+    theme: "light" | "dark" | "system"
+  ): Promise<{ user: UserPreferences }> => {
+    return requestJson(api.users.theme.$patch({ json: { theme } }))
+  },
   list: async (): Promise<{ users: User[] }> => {
     return requestJson(api.users.$get())
   },

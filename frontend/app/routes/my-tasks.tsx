@@ -1,23 +1,29 @@
 import { useState } from "react"
-import { Link, useSearchParams } from "react-router"
+import { Link } from "react-router"
 import { ChevronDown, ChevronRight } from "lucide-react"
 import { Badge } from "~/components/ui/badge"
 import { Button } from "~/components/ui/button"
 import { Skeleton } from "~/components/ui/skeleton"
 import { TaskRow } from "~/components/tasks"
 import { TaskDrawer } from "~/components/tasks"
-import { useUsers } from "~/api/hooks"
+import { useUserTasks } from "~/api/hooks"
 import type { Task } from "~/api/projects"
-import { toast } from "sonner"
+import { useAuth } from "~/store/auth"
 
 export default function MyTasks() {
-  const [searchParams, setSearchParams] = useSearchParams()
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set())
   const [editingTask, setEditingTask] = useState<Task | null>(null)
+  const [editingProjectId, setEditingProjectId] = useState<string>("")
   const [taskDrawerOpen, setTaskDrawerOpen] = useState(false)
 
-  const { data: users, isLoading, isError, error } = useUsers()
+  const { user, _hasHydrated } = useAuth()
+  const {
+    data: userTasks,
+    isLoading,
+    isError,
+    error,
+  } = useUserTasks(user?.id || "")
 
   const toggleGroup = (group: string) => {
     const newCollapsed = new Set(collapsedGroups)
@@ -29,7 +35,7 @@ export default function MyTasks() {
     setCollapsedGroups(newCollapsed)
   }
 
-  if (isLoading) {
+  if (!_hasHydrated || isLoading) {
     return (
       <div className="p-6">
         <Skeleton className="mb-6 h-8 w-32" />
@@ -53,19 +59,34 @@ export default function MyTasks() {
     )
   }
 
-  if (!users || users.length === 0) {
+  if (!user) {
     return (
       <div className="p-6">
-        <h1 className="mb-6 text-2xl font-bold">My Tasks</h1>
-        <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-border py-16">
-          <h3 className="mb-1 text-lg font-semibold">You're all caught up</h3>
-          <p className="text-sm text-muted-foreground">
-            You have no tasks assigned to you
-          </p>
+        <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4">
+          <p className="font-medium text-destructive">Authentication required</p>
+          <p className="text-sm">Please log in to view your tasks.</p>
         </div>
       </div>
     )
   }
+
+  if (!userTasks) {
+    return null
+  }
+
+  const projects = userTasks.projects
+    .map((project) => ({
+      ...project,
+      tasks: project.tasks.filter((task) =>
+        statusFilter === "all" ? true : task.status === statusFilter
+      ),
+    }))
+    .filter((project) => project.tasks.length > 0)
+
+  const totalFilteredTasks = projects.reduce(
+    (acc, project) => acc + project.tasks.length,
+    0
+  )
 
   return (
     <div className="p-6">
@@ -74,6 +95,9 @@ export default function MyTasks() {
         <p className="text-muted-foreground">
           Tasks assigned to you across all projects
         </p>
+        <div className="mt-3 flex gap-2">
+          <Badge variant="secondary">{totalFilteredTasks} Tasks</Badge>
+        </div>
       </div>
 
       <div className="mb-4">
@@ -92,25 +116,32 @@ export default function MyTasks() {
         </div>
       </div>
 
-      <div className="space-y-4">
-        {users.map((user) => {
-          const userTasks = user.todo_count + user.in_progress_count + user.done_count
-          const filteredCount =
-            statusFilter === "all"
-              ? userTasks
-              : statusFilter === "todo"
-              ? user.todo_count
-              : statusFilter === "in_progress"
-              ? user.in_progress_count
-              : user.done_count
+      {projects.length === 0 ? (
+        <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-border py-16">
+          <h3 className="mb-1 text-lg font-semibold">You're all caught up</h3>
+          <p className="text-sm text-muted-foreground">
+            {statusFilter === "all"
+              ? "You have no tasks assigned to you"
+              : "No tasks match this status filter"}
+          </p>
+          {statusFilter !== "all" && (
+            <Button
+              variant="link"
+              onClick={() => setStatusFilter("all")}
+              className="mt-2"
+            >
+              Clear filter
+            </Button>
+          )}
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {projects.map((project) => {
+            const groupKey = `project-${project.project_id}`
+            const isCollapsed = collapsedGroups.has(groupKey)
 
-          if (filteredCount === 0) return null
-
-          const groupKey = `user-${user.id}`
-          const isCollapsed = collapsedGroups.has(groupKey)
-
-          return (
-            <div key={user.id} className="rounded-lg border border-border">
+            return (
+              <div key={project.project_id} className="rounded-lg border border-border">
               <button
                 className="flex w-full items-center gap-3 p-3 text-left hover:bg-muted/50"
                 onClick={() => toggleGroup(groupKey)}
@@ -120,54 +151,59 @@ export default function MyTasks() {
                 ) : (
                   <ChevronDown className="size-4" />
                 )}
-                <span className="font-medium">{user.name}</span>
-                <Badge variant="secondary">{filteredCount}</Badge>
+                <span className="font-medium">{project.project_name}</span>
+                <Badge variant="secondary">{project.tasks.length}</Badge>
                 <Link
-                  to={`/team/${user.id}`}
+                  to={`/projects/${project.project_id}`}
                   className="ml-auto text-sm text-primary hover:underline"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  View profile
+                  Open project
                 </Link>
               </button>
 
               {!isCollapsed && (
                 <div className="border-t border-border">
-                  {userTasks === 0 ? (
-                    <p className="p-4 text-center text-sm text-muted-foreground">
-                      No tasks match this filter
-                    </p>
-                  ) : (
-                    <p className="p-4 text-center text-sm text-muted-foreground">
-                      Task list would appear here
-                    </p>
-                  )}
+                  {project.tasks.map((task) => {
+                    const normalizedTask: Task = {
+                      ...task,
+                      assignee_name: userTasks.user.name,
+                      assignee_email: userTasks.user.email,
+                    }
+
+                    return (
+                      <TaskRow
+                        key={task.id}
+                        task={normalizedTask}
+                        projectId={project.project_id}
+                        onEdit={(selectedTask) => {
+                          setEditingProjectId(project.project_id)
+                          setEditingTask(selectedTask)
+                          setTaskDrawerOpen(true)
+                        }}
+                      />
+                    )
+                  })}
                 </div>
               )}
             </div>
-          )
-        })}
-      </div>
-
-      {statusFilter !== "all" && users.every((u) => {
-        const count = statusFilter === "todo"
-          ? u.todo_count
-          : statusFilter === "in_progress"
-          ? u.in_progress_count
-          : u.done_count
-        return count === 0
-      }) && (
-        <div className="mt-4 flex flex-col items-center justify-center rounded-lg border border-border py-8">
-          <h3 className="mb-1 text-lg font-semibold">No tasks match this filter</h3>
-          <Button
-            variant="link"
-            onClick={() => setStatusFilter("all")}
-            className="text-primary"
-          >
-            Clear filter
-          </Button>
+            )
+          })}
         </div>
       )}
+
+      <TaskDrawer
+        projectId={editingProjectId}
+        task={editingTask}
+        open={taskDrawerOpen}
+        onOpenChange={(open) => {
+          setTaskDrawerOpen(open)
+          if (!open) {
+            setEditingTask(null)
+            setEditingProjectId("")
+          }
+        }}
+      />
     </div>
   )
 }
