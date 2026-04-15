@@ -63,7 +63,8 @@ export const useLogout = () => {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const logout = useAuthStore((state) => state.logout)
-  return () => {
+  return async () => {
+    await queryClient.cancelQueries()
     logout()
     queryClient.clear()
     navigate("/login", { replace: true })

@@ -4,6 +4,7 @@ import type { AppType } from "../../../backend/src/app"
 import { useAuthStore } from "~/store/auth"
 
 export const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001"
+let isRedirectingToLogin = false
 
 export const api = hc<AppType>(BASE_URL, {
   headers: () => {
@@ -30,10 +31,17 @@ export const requestJson = async <T>(responsePromise: Promise<ResponseLike>): Pr
   const isAppRoute = window.location.pathname.startsWith("/app") || window.location.pathname === "/"
 
   if (response.status === 401) {
+    useAuthStore.getState().logout()
+
     if (isAppRoute) {
-      useAuthStore.getState().logout()
-      window.location.href = "/login"
+      const onLoginPage = window.location.pathname === "/login"
+
+      if (!onLoginPage && !isRedirectingToLogin) {
+        isRedirectingToLogin = true
+        window.location.replace("/login")
+      }
     }
+
     return {} as T
   }
 
