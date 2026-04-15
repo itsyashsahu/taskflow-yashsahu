@@ -45,10 +45,11 @@ function getQueryKeysToInvalidate(event: DataEvent) {
 
 export function useDataUpdates() {
   const token = useAuthStore((state) => state.token)
+  const _hasHydrated = useAuthStore((state) => state._hasHydrated)
   const queryClient = useQueryClient()
 
   const connect = useCallback(() => {
-    if (!token) return
+    if (!token || !_hasHydrated) return
 
     const eventSource = new EventSource(`${BASE_URL}/data-updates`, {
       withCredentials: true,
@@ -78,7 +79,7 @@ export function useDataUpdates() {
     return () => {
       eventSource.close()
     }
-  }, [token, queryClient])
+  }, [token, _hasHydrated, queryClient])
 
   useEffect(() => {
     const cleanup = connect()

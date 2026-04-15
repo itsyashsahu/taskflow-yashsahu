@@ -9,8 +9,6 @@ import { useDataUpdates } from "~/api/hooks"
 export default function Layout() {
   const { _hasHydrated } = useAuth()
 
-  useDataUpdates()
-
   if (!_hasHydrated) {
     return (
       <div className="flex min-h-svh items-center justify-center">
@@ -18,6 +16,8 @@ export default function Layout() {
       </div>
     )
   }
+
+  useDataUpdates()
 
   return (
     <ProtectedRoute>
