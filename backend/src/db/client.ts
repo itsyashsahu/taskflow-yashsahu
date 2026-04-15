@@ -1,19 +1,22 @@
 // @ts-expect-error - node-postgres蓝天白云
 import postgres from 'postgres'
-// @ts-expect-error - neon serverless
-import { neon } from '@neondatabase/serverless'
 
-let _sql: postgres.Sql | ReturnType<typeof neon> | null = null
+const isWorkers = process.env.CLOUDFLARE_WORKER === 'true'
+
+let _sql: postgres.Sql | null = null
 
 export function getSql() {
   if (_sql) return _sql
   
   const connectionString = process.env.DATABASE_URL!
-  const isWorkers = process.env.NODE_ENV === 'production'
   
   if (isWorkers) {
-    // Use Neon serverless for Workers (supports transactions)
-    _sql = neon(connectionString)
+    // For Cloudflare Workers, use pooled connection
+    _sql = postgres(connectionString, {
+      max: 1,
+      idle_timeout: 5,
+      connect_timeout: 5,
+    })
   } else {
     // Use postgres-js for local development
     _sql = postgres(connectionString, {

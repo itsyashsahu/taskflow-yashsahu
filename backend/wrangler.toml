@@ -9,11 +9,9 @@ name = "taskflow-api-prod"
 [env.staging]
 name = "taskflow-api-staging"
 
+# Preview/deploy from local without env specific config
+
 [vars]
 NODE_ENV = "production"
 BACKEND_URL = "https://taskflow-api.yashsahu.workers.dev"
-
-[[d1_databases]]
-binding = "DB"
-database_name = "taskflow"
-database_id = ""  # Your database ID
+CLOUDFLARE_WORKER = "true"
