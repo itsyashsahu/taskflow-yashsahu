@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react"
-import { Link, useNavigate } from "react-router"
+import { useState } from "react"
+import { Link, Navigate } from "react-router"
 import { Button } from "~/components/ui/button"
 import { Input } from "~/components/ui/input"
 import { Label } from "~/components/ui/label"
@@ -11,13 +11,6 @@ import { toast } from "sonner"
 
 export default function Login() {
   const { isAuthenticated, _hasHydrated } = useAuth()
-  const navigateFn = useNavigate()
-
-  useEffect(() => {
-    if (_hasHydrated && isAuthenticated) {
-      navigateFn("/projects", { replace: true })
-    }
-  }, [_hasHydrated, isAuthenticated, navigateFn])
 
   const [isRegister, setIsRegister] = useState(false)
   const [name, setName] = useState("")
@@ -27,6 +20,10 @@ export default function Login() {
 
   const loginMutation = useLogin()
   const registerMutation = useRegister()
+
+  if (_hasHydrated && isAuthenticated) {
+    return <Navigate to="/projects" replace />
+  }
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
@@ -62,7 +59,6 @@ export default function Login() {
         await loginMutation.mutateAsync({ email, password })
         toast.success("Welcome back!")
       }
-      navigateFn("/projects")
     } catch (error: any) {
       toast.error(error.message || "An error occurred")
       if (error.fields) {

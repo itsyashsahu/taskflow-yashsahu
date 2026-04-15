@@ -1,6 +1,6 @@
 import { create } from "zustand"
 import { persist, createJSONStorage } from "zustand/middleware"
-import { useNavigate } from "react-router"
+import { useQueryClient } from "@tanstack/react-query"
 
 export interface User {
   id: string
@@ -59,10 +59,10 @@ export const useAuth = () => {
 }
 
 export const useLogout = () => {
-  const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const logout = useAuthStore((state) => state.logout)
   return () => {
     logout()
-    navigate("/login")
+    queryClient.clear()
   }
 }
