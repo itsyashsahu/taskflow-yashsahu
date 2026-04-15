@@ -1,8 +1,9 @@
 import { Outlet } from "react-router"
-import { Sidebar } from "~/components/layout/Sidebar"
+import { Sidebar, MobileSidebar } from "~/components/layout/Sidebar"
 import { ProtectedRoute } from "~/components/layout/ProtectedRoute"
 import { useAuth } from "~/store/auth"
 import { Loader2 } from "lucide-react"
+import { Logo } from "~/components/Logo"
 
 export default function Layout() {
   const { _hasHydrated } = useAuth()
@@ -17,9 +18,13 @@ export default function Layout() {
 
   return (
     <ProtectedRoute>
-      <div className="flex min-h-svh">
+      <div className="min-h-svh bg-background">
+        <div className="flex h-14 items-center gap-3 border-b border-border px-4 lg:hidden">
+          <MobileSidebar />
+          <Logo className="h-7" />
+        </div>
         <Sidebar />
-        <main className="ml-60 flex-1">
+        <main className="flex-1 lg:ml-60">
           <Outlet />
         </main>
       </div>

@@ -11,6 +11,7 @@ import {
 import { useProjects } from "~/api/hooks"
 import { toast } from "sonner"
 import type { Project } from "~/api/projects"
+import { PageHeader, PageState } from "~/components/common"
 
 export default function Projects() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -59,17 +60,20 @@ export default function Projects() {
   }
 
   return (
-    <div className="p-6">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Projects</h1>
-        <Button onClick={() => setCreateOpen(true)}>
-          <Plus className="mr-2 size-4" />
-          Create Project
-        </Button>
-      </div>
+    <div className="p-4 sm:p-6">
+      <PageHeader
+        title="Projects"
+        description="Plan, track, and ship work across your team."
+        actions={
+          <Button onClick={() => setCreateOpen(true)}>
+            <Plus className="mr-2 size-4" />
+            Create Project
+          </Button>
+        }
+      />
 
       {projects && projects.length > 0 ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {projects.map((project) => (
             <ProjectCard
               key={project.id}
@@ -80,31 +84,33 @@ export default function Projects() {
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-border py-16">
-          <div className="mb-4 rounded-full bg-muted p-4">
-            <svg
-              className="size-12 text-muted-foreground"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-              />
-            </svg>
-          </div>
-          <h3 className="mb-1 text-lg font-semibold">No projects yet</h3>
-          <p className="mb-4 text-sm text-muted-foreground">
-            Get started by creating your first project
-          </p>
-          <Button onClick={() => setCreateOpen(true)}>
-            <Plus className="mr-2 size-4" />
-            Start a Project
-          </Button>
-        </div>
+        <PageState
+          title="No projects yet"
+          description="Get started by creating your first project."
+          icon={
+            <div className="rounded-full bg-muted p-4">
+              <svg
+                className="size-12 text-muted-foreground"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                />
+              </svg>
+            </div>
+          }
+          action={
+            <Button onClick={() => setCreateOpen(true)}>
+              <Plus className="mr-2 size-4" />
+              Start a Project
+            </Button>
+          }
+        />
       )}
 
       <CreateProjectModal open={createOpen} onOpenChange={setCreateOpen} />

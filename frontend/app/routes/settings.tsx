@@ -6,6 +6,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs"
 import { Avatar, AvatarFallback } from "~/components/ui/avatar"
 import { Separator } from "~/components/ui/separator"
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "~/components/ui/dialog"
+import {
   Card,
   CardContent,
   CardDescription,
@@ -15,6 +23,7 @@ import {
 import { useAuthStore } from "~/store/auth"
 import { useTheme } from "~/components/theme-provider"
 import { toast } from "sonner"
+import { PageHeader } from "~/components/common"
 
 function getInitials(name: string) {
   return name
@@ -79,14 +88,23 @@ export default function Settings() {
   }
 
   return (
-    <div className="p-6">
-      <h1 className="mb-6 text-2xl font-bold">Settings</h1>
+    <div className="p-4 sm:p-6">
+      <PageHeader
+        title="Settings"
+        description="Manage your profile, security, and appearance."
+      />
 
       <Tabs defaultValue="profile" className="w-full">
-        <TabsList className="sticky top-0 z-10 mb-6 bg-background">
-          <TabsTrigger value="profile">Profile</TabsTrigger>
-          <TabsTrigger value="security">Security</TabsTrigger>
-          <TabsTrigger value="appearance">Appearance</TabsTrigger>
+        <TabsList className="sticky top-0 z-10 mb-6 flex h-auto w-full flex-wrap gap-2 bg-background p-1">
+          <TabsTrigger value="profile" className="flex-1 sm:flex-none">
+            Profile
+          </TabsTrigger>
+          <TabsTrigger value="security" className="flex-1 sm:flex-none">
+            Security
+          </TabsTrigger>
+          <TabsTrigger value="appearance" className="flex-1 sm:flex-none">
+            Appearance
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile">
@@ -195,6 +213,7 @@ export default function Settings() {
                     id="show-passwords"
                     checked={showPasswords}
                     onChange={(e) => setShowPasswords(e.target.checked)}
+                    aria-label="Show passwords"
                     className="rounded border-input"
                   />
                   <Label htmlFor="show-passwords" className="text-sm font-normal">
@@ -280,7 +299,7 @@ export default function Settings() {
                       : "border-border hover:border-primary/50"
                   }`}
                 >
-                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-background to-slate-900 shadow-sm">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-background shadow-sm">
                     <svg
                       className="size-6"
                       fill="none"
@@ -317,41 +336,38 @@ function DeleteAccountButton() {
   }
 
   return (
-    <div>
-      <Button
-        variant="destructive"
-        onClick={() => setOpen(true)}
-      >
+    <Dialog open={open} onOpenChange={setOpen}>
+      <Button variant="destructive" onClick={() => setOpen(true)}>
         Delete Account
       </Button>
 
-      {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="w-full max-w-md rounded-lg bg-background p-6 shadow-lg">
-            <h3 className="mb-2 text-lg font-semibold">Delete Account</h3>
-            <p className="mb-4 text-sm text-muted-foreground">
-              This action is irreversible. To confirm, please enter your email
-              address.
-            </p>
-            <div className="mb-4">
-              <Input
-                type="email"
-                placeholder="your@email.com"
-                value={confirmEmail}
-                onChange={(e) => setConfirmEmail(e.target.value)}
-              />
-            </div>
-            <div className="flex gap-2">
-              <Button variant="ghost" onClick={() => setOpen(false)}>
-                Cancel
-              </Button>
-              <Button variant="destructive" onClick={handleDelete}>
-                Delete Forever
-              </Button>
-            </div>
-          </div>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Delete Account</DialogTitle>
+          <DialogDescription>
+            This action is irreversible. To confirm, please enter your email
+            address.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="grid gap-4 py-2">
+          <Input
+            type="email"
+            placeholder="your@email.com"
+            value={confirmEmail}
+            onChange={(e) => setConfirmEmail(e.target.value)}
+          />
         </div>
-      )}
-    </div>
+
+        <DialogFooter>
+          <Button variant="ghost" onClick={() => setOpen(false)}>
+            Cancel
+          </Button>
+          <Button variant="destructive" onClick={handleDelete}>
+            Delete Forever
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }

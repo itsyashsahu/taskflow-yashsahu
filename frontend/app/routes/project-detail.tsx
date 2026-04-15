@@ -43,6 +43,7 @@ import { EditProjectModal } from "~/components/projects"
 import { useProject, useUpdateTask } from "~/api/hooks"
 import { toast } from "sonner"
 import type { Task } from "~/api/projects"
+import { PageState } from "~/components/common"
 
 type ViewMode = "list" | "board"
 
@@ -77,19 +78,16 @@ function SortableTaskCard({ task, onClick }: SortableTaskCardProps) {
     attributes,
     listeners,
     setNodeRef,
-    transform,
-    transition,
     isDragging,
   } = useSortable({ id: task.id })
 
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  }
-
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+    <div
+      ref={setNodeRef}
+      className={isDragging ? "opacity-50" : "opacity-100"}
+      {...attributes}
+      {...listeners}
+    >
       <TaskCard task={task} onClick={onClick} isDragging={isDragging} />
     </div>
   )
@@ -139,7 +137,7 @@ function BoardColumn({
 
       <div
         ref={setNodeRef}
-        className={`flex-1 space-y-2 overflow-y-auto p-2 min-h-[200px] rounded-b-lg transition-colors ${
+        className={`flex-1 min-h-50 space-y-2 overflow-y-auto rounded-b-lg p-2 transition-colors ${
           isOver ? "bg-primary/5" : ""
         }`}
       >
@@ -272,15 +270,19 @@ export default function ProjectDetail() {
 
   if (!id) {
     return (
-      <div className="p-6">
-        <p className="text-destructive">Invalid project ID</p>
+      <div className="p-4 sm:p-6">
+        <PageState
+          variant="destructive"
+          title="Invalid project ID"
+          description="The requested project could not be loaded."
+        />
       </div>
     )
   }
 
   if (isLoading) {
     return (
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         <Skeleton className="mb-4 h-8 w-64" />
         <Skeleton className="mb-8 h-4 w-96" />
         <div className="space-y-4">
@@ -294,11 +296,12 @@ export default function ProjectDetail() {
 
   if (isError || !project) {
     return (
-      <div className="p-6">
-        <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4">
-          <p className="font-medium text-destructive">Error loading project</p>
-          <p className="text-sm">{error?.message || "Please try again later"}</p>
-        </div>
+      <div className="p-4 sm:p-6">
+        <PageState
+          variant="destructive"
+          title="Error loading project"
+          description={error?.message || "Please try again later"}
+        />
       </div>
     )
   }
@@ -324,7 +327,7 @@ export default function ProjectDetail() {
   )
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6">
       <div className="mb-6">
         <div className="flex items-start justify-between">
           <div>
@@ -374,14 +377,14 @@ export default function ProjectDetail() {
 
       <div className="mb-4 flex flex-wrap items-center gap-4">
         {viewMode === "list" && (
-          <div className="flex rounded-lg border border-border p-1">
+          <div className="flex flex-wrap gap-1 rounded-lg border border-border p-1">
             {["all", "todo", "in_progress", "done"].map((status) => (
               <Button
                 key={status}
                 variant={statusFilter === status ? "secondary" : "ghost"}
                 size="sm"
                 onClick={() => setStatusFilter(status)}
-                className="capitalize"
+                className="flex-1 capitalize sm:flex-none"
               >
                 {status === "all" ? "All Tasks" : status.replace("_", " ")}
               </Button>
@@ -389,19 +392,19 @@ export default function ProjectDetail() {
           </div>
         )}
 
-<Select value={assigneeFilter} onValueChange={(v) => setAssigneeFilter(v || "all")}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="All Assignees" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Assignees</SelectItem>
-                  {uniqueAssignees.map((assignee) => (
-                    <SelectItem key={assignee.id} value={assignee.id}>
-                      {assignee.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+        <Select value={assigneeFilter} onValueChange={(v) => setAssigneeFilter(v || "all")}>
+          <SelectTrigger className="w-full sm:w-45">
+            <SelectValue placeholder="All Assignees" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Assignees</SelectItem>
+            {uniqueAssignees.map((assignee) => (
+              <SelectItem key={assignee.id} value={assignee.id}>
+                {assignee.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {viewMode === "list" ? (
@@ -494,29 +497,31 @@ export default function ProjectDetail() {
           )}
 
           {filteredTasks.length === 0 && (
-            <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-border py-16">
-              <svg
-                className="mb-4 size-12 text-muted-foreground"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                />
-              </svg>
-              <h3 className="mb-1 text-lg font-semibold">No tasks yet</h3>
-              <p className="mb-4 text-sm text-muted-foreground">
-                Create the first task to get started
-              </p>
-              <Button onClick={() => handleAddTask("todo")}>
-                <Plus className="mr-2 size-4" />
-                Create the first task
-              </Button>
-            </div>
+            <PageState
+              title="No tasks yet"
+              description="Create the first task to get started."
+              icon={
+                <svg
+                  className="size-12 text-muted-foreground"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                  />
+                </svg>
+              }
+              action={
+                <Button onClick={() => handleAddTask("todo")}>
+                  <Plus className="mr-2 size-4" />
+                  Create the first task
+                </Button>
+              }
+            />
           )}
         </div>
       ) : (

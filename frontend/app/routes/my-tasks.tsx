@@ -9,6 +9,7 @@ import { TaskDrawer } from "~/components/tasks"
 import { useUserTasks } from "~/api/hooks"
 import type { Task } from "~/api/projects"
 import { useAuth } from "~/store/auth"
+import { PageHeader, PageState } from "~/components/common"
 
 export default function MyTasks() {
   const [statusFilter, setStatusFilter] = useState<string>("all")
@@ -37,7 +38,7 @@ export default function MyTasks() {
 
   if (!_hasHydrated || isLoading) {
     return (
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         <Skeleton className="mb-6 h-8 w-32" />
         <div className="space-y-4">
           <Skeleton className="h-12" />
@@ -50,22 +51,24 @@ export default function MyTasks() {
 
   if (isError) {
     return (
-      <div className="p-6">
-        <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4">
-          <p className="font-medium text-destructive">Error loading tasks</p>
-          <p className="text-sm">{error?.message || "Please try again later"}</p>
-        </div>
+      <div className="p-4 sm:p-6">
+        <PageState
+          variant="destructive"
+          title="Error loading tasks"
+          description={error?.message || "Please try again later"}
+        />
       </div>
     )
   }
 
   if (!user) {
     return (
-      <div className="p-6">
-        <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4">
-          <p className="font-medium text-destructive">Authentication required</p>
-          <p className="text-sm">Please log in to view your tasks.</p>
-        </div>
+      <div className="p-4 sm:p-6">
+        <PageState
+          variant="destructive"
+          title="Authentication required"
+          description="Please log in to view your tasks."
+        />
       </div>
     )
   }
@@ -89,26 +92,22 @@ export default function MyTasks() {
   )
 
   return (
-    <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold">My Tasks</h1>
-        <p className="text-muted-foreground">
-          Tasks assigned to you across all projects
-        </p>
-        <div className="mt-3 flex gap-2">
-          <Badge variant="secondary">{totalFilteredTasks} Tasks</Badge>
-        </div>
-      </div>
+    <div className="p-4 sm:p-6">
+      <PageHeader
+        title="My Tasks"
+        description="Tasks assigned to you across all projects."
+        actions={<Badge variant="secondary">{totalFilteredTasks} Tasks</Badge>}
+      />
 
       <div className="mb-4">
-        <div className="flex rounded-lg border border-border p-1">
+        <div className="flex flex-wrap gap-1 rounded-lg border border-border p-1">
           {["all", "todo", "in_progress", "done"].map((status) => (
             <Button
               key={status}
               variant={statusFilter === status ? "secondary" : "ghost"}
               size="sm"
               onClick={() => setStatusFilter(status)}
-              className="capitalize"
+              className="flex-1 capitalize sm:flex-none"
             >
               {status === "all" ? "All Tasks" : status.replace("_", " ")}
             </Button>
@@ -117,23 +116,21 @@ export default function MyTasks() {
       </div>
 
       {projects.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-border py-16">
-          <h3 className="mb-1 text-lg font-semibold">You're all caught up</h3>
-          <p className="text-sm text-muted-foreground">
-            {statusFilter === "all"
-              ? "You have no tasks assigned to you"
-              : "No tasks match this status filter"}
-          </p>
-          {statusFilter !== "all" && (
-            <Button
-              variant="link"
-              onClick={() => setStatusFilter("all")}
-              className="mt-2"
-            >
-              Clear filter
-            </Button>
-          )}
-        </div>
+        <PageState
+          title="You're all caught up"
+          description={
+            statusFilter === "all"
+              ? "You have no tasks assigned to you."
+              : "No tasks match this status filter."
+          }
+          action={
+            statusFilter !== "all" ? (
+              <Button variant="link" onClick={() => setStatusFilter("all")}>
+                Clear filter
+              </Button>
+            ) : null
+          }
+        />
       ) : (
         <div className="space-y-4">
           {projects.map((project) => {
@@ -141,26 +138,26 @@ export default function MyTasks() {
             const isCollapsed = collapsedGroups.has(groupKey)
 
             return (
-              <div key={project.project_id} className="rounded-lg border border-border">
-              <button
-                className="flex w-full items-center gap-3 p-3 text-left hover:bg-muted/50"
-                onClick={() => toggleGroup(groupKey)}
-              >
-                {isCollapsed ? (
-                  <ChevronRight className="size-4" />
-                ) : (
-                  <ChevronDown className="size-4" />
-                )}
-                <span className="font-medium">{project.project_name}</span>
-                <Badge variant="secondary">{project.tasks.length}</Badge>
-                <Link
-                  to={`/projects/${project.project_id}`}
-                  className="ml-auto text-sm text-primary hover:underline"
-                  onClick={(e) => e.stopPropagation()}
+              <div key={project.project_id} className="overflow-hidden rounded-lg border border-border">
+                <button
+                  className="flex w-full flex-wrap items-center gap-3 p-3 text-left hover:bg-muted/50"
+                  onClick={() => toggleGroup(groupKey)}
                 >
-                  Open project
-                </Link>
-              </button>
+                  {isCollapsed ? (
+                    <ChevronRight className="size-4 shrink-0" />
+                  ) : (
+                    <ChevronDown className="size-4 shrink-0" />
+                  )}
+                  <span className="min-w-0 flex-1 font-medium">{project.project_name}</span>
+                  <Badge variant="secondary">{project.tasks.length}</Badge>
+                  <Link
+                    to={`/projects/${project.project_id}`}
+                    className="ml-0 text-sm text-primary hover:underline sm:ml-auto"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    Open project
+                  </Link>
+                </button>
 
               {!isCollapsed && (
                 <div className="border-t border-border">
@@ -186,7 +183,7 @@ export default function MyTasks() {
                   })}
                 </div>
               )}
-            </div>
+              </div>
             )
           })}
         </div>

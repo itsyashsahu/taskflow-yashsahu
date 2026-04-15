@@ -4,15 +4,16 @@ import { Badge } from "~/components/ui/badge"
 import { Card, CardContent } from "~/components/ui/card"
 import { Skeleton } from "~/components/ui/skeleton"
 import { useUsers } from "~/api/hooks"
+import { PageHeader, PageState } from "~/components/common"
 
 export default function Team() {
   const { data: users, isLoading, isError, error } = useUsers()
 
   if (isLoading) {
     return (
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         <Skeleton className="mb-6 h-8 w-32" />
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {[1, 2, 3].map((i) => (
             <Skeleton key={i} className="h-40" />
           ))}
@@ -23,11 +24,12 @@ export default function Team() {
 
   if (isError) {
     return (
-      <div className="p-6">
-        <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4">
-          <p className="font-medium text-destructive">Error loading team</p>
-          <p className="text-sm">{error?.message || "Please try again later"}</p>
-        </div>
+      <div className="p-4 sm:p-6">
+        <PageState
+          variant="destructive"
+          title="Error loading team"
+          description={error?.message || "Please try again later"}
+        />
       </div>
     )
   }
@@ -42,20 +44,18 @@ export default function Team() {
   }
 
   return (
-    <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold">Team</h1>
-        <p className="text-muted-foreground">
-          View team members and their task distribution
-        </p>
-      </div>
+    <div className="p-4 sm:p-6">
+      <PageHeader
+        title="Team"
+        description="View team members and their task distribution."
+      />
 
       {users && users.length > 0 ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {users.map((user) => (
             <Link key={user.id} to={`/team/${user.id}`}>
               <Card className="transition-shadow hover:shadow-md">
-                <CardContent className="p-4">
+                <CardContent className="p-4 sm:p-5">
                   <div className="flex items-start gap-3">
                     <Avatar className="size-12">
                       <AvatarFallback className="bg-primary text-primary-foreground">
@@ -70,7 +70,7 @@ export default function Team() {
                     </div>
                   </div>
 
-                  <div className="mt-4 flex gap-2">
+                  <div className="mt-4 flex flex-wrap gap-2">
                     <Badge variant="secondary" className="gap-1">
                       <span className="size-1.5 rounded-full bg-muted-foreground" />
                       {user.todo_count} Todo
@@ -90,12 +90,10 @@ export default function Team() {
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-border py-16">
-          <h3 className="mb-1 text-lg font-semibold">No team members yet</h3>
-          <p className="text-sm text-muted-foreground">
-            Team members will appear here once they join
-          </p>
-        </div>
+        <PageState
+          title="No team members yet"
+          description="Team members will appear here once they join."
+        />
       )}
     </div>
   )

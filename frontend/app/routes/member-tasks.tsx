@@ -5,6 +5,7 @@ import { Button } from "~/components/ui/button"
 import { Skeleton } from "~/components/ui/skeleton"
 import { Badge } from "~/components/ui/badge"
 import { useUserTasks, useUsers } from "~/api/hooks"
+import { PageHeader, PageState } from "~/components/common"
 
 export default function MemberTasks() {
   const { userId } = useParams<{ userId: string }>()
@@ -15,7 +16,7 @@ export default function MemberTasks() {
 
   if (!userId) {
     return (
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         <p className="text-destructive">Invalid user ID</p>
       </div>
     )
@@ -23,7 +24,7 @@ export default function MemberTasks() {
 
   if (isLoading) {
     return (
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         <Skeleton className="mb-6 h-8 w-32" />
         <div className="space-y-4">
           <Skeleton className="h-12" />
@@ -36,11 +37,12 @@ export default function MemberTasks() {
 
   if (isError || !userTasks) {
     return (
-      <div className="p-6">
-        <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4">
-          <p className="font-medium text-destructive">Error loading tasks</p>
-          <p className="text-sm">{error?.message || "Please try again later"}</p>
-        </div>
+      <div className="p-4 sm:p-6">
+        <PageState
+          variant="destructive"
+          title="Error loading tasks"
+          description={error?.message || "Please try again later"}
+        />
       </div>
     )
   }
@@ -60,50 +62,39 @@ export default function MemberTasks() {
   )
 
   return (
-    <div className="p-6">
-      <div className="mb-6">
-        <Link
-          to="/team"
-          className="inline-flex items-center gap-2 mb-4 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <ArrowLeft className="size-4" />
-          Back to Team
-        </Link>
+    <div className="p-4 sm:p-6">
+      <Link
+        to="/team"
+        className="mb-4 inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+      >
+        <ArrowLeft className="size-4" />
+        Back to Team
+      </Link>
 
-        <div className="flex items-center gap-4">
-          <Avatar className="size-16">
-            <AvatarFallback className="bg-primary text-primary-foreground text-xl">
-              {getInitials(userTasks.user.name)}
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <h1 className="text-2xl font-bold">{userTasks.user.name}</h1>
-            <p className="text-muted-foreground">
-              Tasks assigned to {userTasks.user.name}
-            </p>
+      <PageHeader
+        title={userTasks.user.name}
+        description={`Tasks assigned to ${userTasks.user.name}`}
+        actions={
+          <div className="flex flex-wrap gap-2">
+            <Badge variant="secondary">{userTasks.user.todo_count} Todo</Badge>
+            <Badge variant="secondary">
+              {userTasks.user.in_progress_count} In Progress
+            </Badge>
+            <Badge variant="secondary">{userTasks.user.done_count} Done</Badge>
           </div>
-        </div>
-
-        <div className="mt-4 flex gap-4">
-          <Badge variant="secondary">
-            {userTasks.user.todo_count} Todo
-          </Badge>
-          <Badge variant="secondary">
-            {userTasks.user.in_progress_count} In Progress
-          </Badge>
-          <Badge variant="secondary">
-            {userTasks.user.done_count} Done
-          </Badge>
-        </div>
-      </div>
+        }
+      />
 
       {totalTasks > 0 ? (
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {userTasks.projects.map((project) => (
-            <div key={project.project_id} className="rounded-lg border border-border">
+            <div
+              key={project.project_id}
+              className="overflow-hidden rounded-lg border border-border"
+            >
               <Link
                 to={`/projects/${project.project_id}`}
-                className="flex items-center gap-2 p-3 hover:bg-muted/50"
+                className="flex items-center gap-2 px-3 py-3 hover:bg-muted/50"
               >
                 <span className="font-medium">{project.project_name}</span>
                 <Badge variant="secondary">{project.tasks.length}</Badge>
@@ -112,7 +103,7 @@ export default function MemberTasks() {
                 {project.tasks.map((task) => (
                   <div
                     key={task.id}
-                    className="flex items-center gap-4 border-b border-border px-4 py-3 last:border-b-0"
+                    className="flex flex-col gap-2 border-b border-border px-4 py-3 last:border-b-0 sm:flex-row sm:items-center sm:gap-4"
                   >
                     <span
                       className={`size-2 rounded-full ${
@@ -123,14 +114,10 @@ export default function MemberTasks() {
                           : "bg-muted-foreground"
                       }`}
                     />
-                    <span
-                      className={
-                        task.status === "done" ? "line-through text-muted-foreground" : ""
-                      }
-                    >
+                    <span className={task.status === "done" ? "text-muted-foreground line-through" : ""}>
                       {task.title}
                     </span>
-                    <Badge variant="secondary" className="ml-auto capitalize">
+                    <Badge variant="secondary" className="capitalize sm:ml-auto">
                       {task.status.replace("_", " ")}
                     </Badge>
                   </div>
@@ -140,12 +127,10 @@ export default function MemberTasks() {
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-border py-16">
-          <h3 className="mb-1 text-lg font-semibold">No tasks assigned</h3>
-          <p className="text-sm text-muted-foreground">
-            {member?.name || "This member"} has no tasks assigned to them
-          </p>
-        </div>
+        <PageState
+          title="No tasks assigned"
+          description={`${member?.name || "This member"} has no tasks assigned to them.`}
+        />
       )}
     </div>
   )
