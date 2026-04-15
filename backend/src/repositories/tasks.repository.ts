@@ -11,7 +11,7 @@ export const tasksRepository = {
     const rows = await db<TaskRow[]>`
       SELECT
         t.id, t.title, t.description, t.status, t.priority,
-        t.project_id, t.assignee_id, t.due_date, t.created_at, t.updated_at,
+        t.project_id, t.creator_id, t.assignee_id, t.due_date, t.created_at, t.updated_at,
         u.name AS assignee_name, u.email AS assignee_email
       FROM tasks t
       LEFT JOIN users u ON u.id = t.assignee_id
@@ -34,10 +34,11 @@ export const tasksRepository = {
       priority?: "low" | "medium" | "high"
       assignee_id?: string | null
       due_date?: string | null
+      creator_id: string
     }
   ) => {
     const [task] = await db<TaskRow[]>`
-      INSERT INTO tasks (title, description, status, priority, project_id, assignee_id, due_date)
+      INSERT INTO tasks (title, description, status, priority, project_id, assignee_id, due_date, creator_id)
       VALUES (
         ${input.title},
         ${input.description ?? null},
@@ -45,11 +46,12 @@ export const tasksRepository = {
         ${input.priority ?? "medium"},
         ${projectId},
         ${input.assignee_id ?? null},
-        ${input.due_date ?? null}
+        ${input.due_date ?? null},
+        ${input.creator_id}
       )
       RETURNING
         id, title, description, status, priority,
-        project_id, assignee_id, due_date, created_at, updated_at,
+        project_id, creator_id, assignee_id, due_date, created_at, updated_at,
         NULL::text AS assignee_name,
         NULL::text AS assignee_email
     `
@@ -72,8 +74,8 @@ export const tasksRepository = {
   },
 
   getForDeletion: async (db: Database, id: string) => {
-    const [task] = await db<{ id: string; assignee_id: string | null; owner_id: string }[]>`
-      SELECT t.id, t.assignee_id, p.owner_id
+    const [task] = await db<{ id: string; creator_id: string; owner_id: string }[]>`
+      SELECT t.id, t.creator_id, p.owner_id
       FROM tasks t
       JOIN projects p ON p.id = t.project_id
       WHERE t.id = ${id}
@@ -101,7 +103,7 @@ export const tasksRepository = {
       WHERE id = ${id}
       RETURNING
         id, title, description, status, priority,
-        project_id, assignee_id, due_date, created_at, updated_at,
+        project_id, creator_id, assignee_id, due_date, created_at, updated_at,
         NULL::text AS assignee_name,
         NULL::text AS assignee_email
     `

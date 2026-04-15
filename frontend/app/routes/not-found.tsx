@@ -1,5 +1,5 @@
 import { Link } from "react-router"
-import { Button } from "~/components/ui/button"
+import { buttonVariants } from "~/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card"
 
 export default function NotFound() {
@@ -15,12 +15,12 @@ export default function NotFound() {
             The page you're looking for doesn't exist or has been moved.
           </p>
           <div className="flex justify-center gap-4">
-            <Button asChild>
-              <Link to="/app">Go Home</Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link to="/login">Login</Link>
-            </Button>
+            <Link to="/app" className={buttonVariants({ variant: "default" })}>
+              Go Home
+            </Link>
+            <Link to="/login" className={buttonVariants({ variant: "outline" })}>
+              Login
+            </Link>
           </div>
         </CardContent>
       </Card>

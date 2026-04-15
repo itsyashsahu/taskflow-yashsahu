@@ -34,7 +34,6 @@ describe('Projects API', () => {
         await sql`DELETE FROM users WHERE email = ${testEmail}`;
       } catch {}
     }
-    await sql.end();
   });
 
   describe('GET /projects', () => {

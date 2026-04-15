@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useLayoutEffect, useState } from "react"
 import { usersApi } from "~/api/users"
+import { useAuthStore } from "~/store/auth"
 
 type Theme = "dark" | "light" | "system"
 
@@ -46,6 +47,11 @@ export function ThemeProvider({
   // Sync theme from backend on mount
   useEffect(() => {
     const syncThemeFromBackend = async () => {
+      const token = useAuthStore.getState().token
+      if (!token) {
+        return
+      }
+
       try {
         const { user } = await usersApi.getCurrentUser()
         if (user.theme && user.theme !== theme) {
@@ -78,7 +84,10 @@ export function ThemeProvider({
 
     // Sync to backend in background
     try {
-      await usersApi.updateTheme(newTheme)
+      const token = useAuthStore.getState().token
+      if (token) {
+        await usersApi.updateTheme(newTheme)
+      }
     } catch (error) {
       console.error("Failed to save theme to backend:", error)
       // Theme is still saved to localStorage, so no silent failure

@@ -18,7 +18,6 @@ import {
   useSortable,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable"
-import { CSS } from "@dnd-kit/utilities"
 import {
   LayoutGrid,
   List,
@@ -41,6 +40,7 @@ import { TaskRow, TaskCard, TaskDrawer } from "~/components/tasks"
 import { StatusIcon } from "~/components/tasks"
 import { EditProjectModal } from "~/components/projects"
 import { useProject, useUpdateTask } from "~/api/hooks"
+import { useAuth } from "~/store/auth"
 import { toast } from "sonner"
 import type { Task } from "~/api/projects"
 import { PageState } from "~/components/common"
@@ -186,6 +186,7 @@ export default function ProjectDetail() {
   const [activeTask, setActiveTask] = useState<Task | null>(null)
 
   const { data: project, isLoading, isError, error } = useProject(id || "")
+  const { user } = useAuth()
   const updateTask = useUpdateTask()
 
   useEffect(() => {
@@ -325,6 +326,7 @@ export default function ProjectDetail() {
         .map((t) => [t.assignee_id, { id: t.assignee_id, name: t.assignee_name! }])
     ).values()
   )
+  const isProjectOwner = project.owner_id === user?.id
 
   return (
     <div className="p-4 sm:p-6">
@@ -334,14 +336,16 @@ export default function ProjectDetail() {
             <div className="flex items-center gap-3">
               <h1 className="text-2xl font-bold">{project.name}</h1>
               <Badge variant="secondary">Active</Badge>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="size-8"
-                onClick={() => setEditProjectOpen(true)}
-              >
-                <Pencil className="size-4" />
-              </Button>
+              {isProjectOwner && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-8"
+                  onClick={() => setEditProjectOpen(true)}
+                >
+                  <Pencil className="size-4" />
+                </Button>
+              )}
             </div>
             {project.description && (
               <p className="mt-1 text-muted-foreground">{project.description}</p>
@@ -578,6 +582,8 @@ export default function ProjectDetail() {
       <TaskDrawer
         projectId={id}
         task={editingTask}
+        currentUserId={user?.id}
+        projectOwnerId={project.owner_id}
         open={taskDrawerOpen}
         onOpenChange={(open) => {
           setTaskDrawerOpen(open)
@@ -587,11 +593,13 @@ export default function ProjectDetail() {
         }}
       />
 
-      <EditProjectModal
-        project={project}
-        open={editProjectOpen}
-        onOpenChange={setEditProjectOpen}
-      />
+      {isProjectOwner && (
+        <EditProjectModal
+          project={project}
+          open={editProjectOpen}
+          onOpenChange={setEditProjectOpen}
+        />
+      )}
     </div>
   )
 }

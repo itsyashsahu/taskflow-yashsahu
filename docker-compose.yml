@@ -5,15 +5,15 @@ services:
     image: postgres:16-alpine
     container_name: taskflow-postgres
     environment:
-      POSTGRES_USER: taskflow
-      POSTGRES_PASSWORD: taskflow
-      POSTGRES_DB: taskflow
+      POSTGRES_USER: ${POSTGRES_USER:-taskflow}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-taskflow}
+      POSTGRES_DB: ${POSTGRES_DB:-taskflow}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U taskflow -d taskflow"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-taskflow} -d ${POSTGRES_DB:-taskflow}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -24,11 +24,13 @@ services:
       dockerfile: Dockerfile
     container_name: taskflow-backend
     environment:
-      DATABASE_URL: postgres://taskflow:taskflow@postgres:5432/taskflow
-      APP_ENV: production
-      PORT: 3001
+      DATABASE_URL: postgres://${POSTGRES_USER:-taskflow}:${POSTGRES_PASSWORD:-taskflow}@postgres:5432/${POSTGRES_DB:-taskflow}
+      JWT_SECRET: ${JWT_SECRET:-dev_secret_change_me}
+      APP_ENV: ${APP_ENV:-production}
+      PORT: ${BACKEND_PORT:-3001}
+      NODE_ENV: ${NODE_ENV:-production}
     ports:
-      - "3001:3001"
+      - "${BACKEND_PORT:-3001}:3001"
     depends_on:
       postgres:
         condition: service_healthy
@@ -40,9 +42,9 @@ services:
       dockerfile: Dockerfile
     container_name: taskflow-frontend
     environment:
-      VITE_API_URL: http://localhost:3001
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:3001}
     ports:
-      - "5173:5173"
+      - "${FRONTEND_PORT:-5173}:5173"
     depends_on:
       - backend
     restart: unless-stopped

@@ -1,12 +1,11 @@
 import { hc } from "hono/client"
-import type { AppType } from "../../../backend/src/app"
 
 import { useAuthStore } from "~/store/auth"
 
 export const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001"
 let isRedirectingToLogin = false
 
-export const api = hc<AppType>(BASE_URL, {
+export const api: any = hc(BASE_URL, {
   headers: () => {
     const token = useAuthStore.getState().token
     const headers: Record<string, string> = {}

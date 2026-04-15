@@ -61,7 +61,7 @@ DATABASE_URL="postgres://$DB_USER:$DB_PASSWORD@localhost:$PORT/$DB_NAME" npx dbm
 
 # Run seed
 echo "Running seed..."
-DATABASE_URL="postgres://$DB_USER:$DB_PASSWORD@localhost:$PORT/$DB_NAME" psql -f db/seed.sql
+docker exec -i $CONTAINER_NAME psql -U $DB_USER -d $DB_NAME < db/seed.sql
 
 echo "PostgreSQL is running on port $PORT with database '$DB_NAME'"
 echo "Press Ctrl+C to stop..."

@@ -20,7 +20,6 @@ describe('Auth API', () => {
     if (token) {
       await sql`DELETE FROM users WHERE email = ${testEmail}`;
     }
-    await sql.end();
   });
 
   describe('POST /auth/register', () => {

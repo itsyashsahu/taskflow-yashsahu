@@ -192,6 +192,7 @@ export default function MyTasks() {
       <TaskDrawer
         projectId={editingProjectId}
         task={editingTask}
+        currentUserId={user?.id}
         open={taskDrawerOpen}
         onOpenChange={(open) => {
           setTaskDrawerOpen(open)

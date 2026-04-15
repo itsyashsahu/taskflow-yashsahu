@@ -52,6 +52,7 @@ tasks.get("/:id/tasks", async (c) => {
 
 // POST /:id/tasks (mounted at /projects)
 tasks.post("/:id/tasks", async (c) => {
+  const userId = c.get("userId")
   const { id } = c.req.param()
   const { data, error } = await parseBody(c, createTaskSchema)
   if (error) return c.json(error, 400)
@@ -67,6 +68,7 @@ tasks.post("/:id/tasks", async (c) => {
       priority: data.priority,
       assignee_id: data.assignee_id ?? null,
       due_date: data.due_date ?? null,
+      creator_id: userId,
     })
     return c.json({ task }, 201)
   } catch (err) {
@@ -109,7 +111,7 @@ tasks.patch("/:id", async (c) => {
   }
 })
 
-// DELETE /tasks/:id — only project owner OR task assignee
+// DELETE /tasks/:id — only project owner OR task creator
 tasks.delete("/:id", async (c) => {
   const userId = c.get("userId")
   const { id } = c.req.param()
@@ -117,7 +119,7 @@ tasks.delete("/:id", async (c) => {
   try {
     const task = await tasksRepository.getForDeletion(c.get("db"), id)
     if (!task) return c.json({ error: 'not found' }, 404)
-    if (task.owner_id !== userId && task.assignee_id !== userId) {
+    if (task.owner_id !== userId && task.creator_id !== userId) {
       return c.json({ error: 'forbidden' }, 403)
     }
 

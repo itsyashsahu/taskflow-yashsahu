@@ -21,13 +21,15 @@ import {
   SelectValue,
 } from "~/components/ui/select"
 import type { Task, CreateTaskInput } from "~/api/projects"
-import { useCreateTask, useUpdateTask, useUsers } from "~/api/hooks"
+import { useCreateTask, useDeleteTask, useUpdateTask, useUsers } from "~/api/hooks"
 import { toast } from "sonner"
 import { cn } from "~/lib/utils"
 
 interface TaskDrawerProps {
   projectId: string
   task: Task | null
+  currentUserId?: string | null
+  projectOwnerId?: string
   open: boolean
   onOpenChange: (open: boolean) => void
 }
@@ -74,6 +76,8 @@ function formatDateLabel(value: string): string {
 export function TaskDrawer({
   projectId,
   task,
+  currentUserId,
+  projectOwnerId,
   open,
   onOpenChange,
 }: TaskDrawerProps) {
@@ -89,9 +93,15 @@ export function TaskDrawer({
 
   const { data: users } = useUsers()
   const createTask = useCreateTask()
+  const deleteTask = useDeleteTask()
   const updateTask = useUpdateTask()
 
   const isEditing = !!task
+  const canDeleteTask = !!(
+    task &&
+    currentUserId &&
+    (projectOwnerId === currentUserId || task.creator_id === currentUserId)
+  )
 
   useEffect(() => {
     if (open) {
@@ -150,7 +160,19 @@ export function TaskDrawer({
     }
   }
 
-  const isPending = createTask.isPending || updateTask.isPending
+  const handleDelete = async () => {
+    if (!task) return
+
+    try {
+      await deleteTask.mutateAsync({ id: task.id, projectId })
+      toast.success("Task deleted successfully!")
+      onOpenChange(false)
+    } catch (error: any) {
+      toast.error(error.message || "Failed to delete task")
+    }
+  }
+
+  const isPending = createTask.isPending || updateTask.isPending || deleteTask.isPending
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -338,13 +360,24 @@ export function TaskDrawer({
           </div>
 
           <SheetFooter>
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => onOpenChange(false)}
-            >
-              Cancel
-            </Button>
+            {isEditing && canDeleteTask ? (
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={handleDelete}
+                disabled={isPending}
+              >
+                {deleteTask.isPending ? "Deleting..." : "Delete Task"}
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => onOpenChange(false)}
+              >
+                Cancel
+              </Button>
+            )}
             <Button type="submit" disabled={isPending}>
               {isPending
                 ? "Saving..."

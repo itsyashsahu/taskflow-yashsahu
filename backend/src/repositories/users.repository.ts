@@ -18,6 +18,7 @@ export type UserTaskRow = {
   status: "todo" | "in_progress" | "done"
   priority: "low" | "medium" | "high"
   project_id: string
+  creator_id: string
   assignee_id: string | null
   due_date: string | null
   created_at: string
@@ -70,7 +71,7 @@ export const usersRepository = {
     const tasks = await db<UserTaskRow[]>`
       SELECT
         t.id, t.title, t.description, t.status, t.priority,
-        t.project_id, t.assignee_id, t.due_date, t.created_at, t.updated_at,
+        t.project_id, t.creator_id, t.assignee_id, t.due_date, t.created_at, t.updated_at,
         p.name AS project_name
       FROM tasks t
       JOIN projects p ON p.id = t.project_id

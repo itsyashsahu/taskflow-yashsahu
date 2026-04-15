@@ -22,6 +22,7 @@ export interface Task {
   status: "todo" | "in_progress" | "done"
   priority: "low" | "medium" | "high"
   project_id: string
+  creator_id: string
   assignee_id: string | null
   due_date: string | null
   created_at: string
