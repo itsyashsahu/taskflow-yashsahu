@@ -47,6 +47,12 @@ Commands:
 git clone <your-repo-url>
 cd taskflow
 cp .env.example .env
+bash scripts/dev-up.sh
+```
+
+If you prefer the standard command, this also works when ports are free:
+
+```bash
 docker compose up --build
 ```
 
