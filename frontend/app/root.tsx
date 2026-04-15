@@ -1,3 +1,4 @@
+import { Link } from "react-router"
 import {
   Links,
   Meta,
@@ -11,6 +12,8 @@ import type { Route } from "./+types/root"
 import { QueryProvider } from "~/lib/query-provider"
 import { Toaster } from "~/components/ui/sonner"
 import { ThemeProvider } from "~/components/theme-provider"
+import { Button } from "~/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card"
 import "./app.css"
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -64,30 +67,46 @@ export default function App() {
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
-  let message = "Oops!"
-  let details = "An unexpected error occurred."
-  let stack: string | undefined
+  let title = "Oops!"
+  let description = "An unexpected error occurred."
+  let status = 0
 
   if (isRouteErrorResponse(error)) {
-    message = error.status === 404 ? "404" : "Error"
-    details =
-      error.status === 404
-        ? "The requested page could not be found."
-        : error.statusText || details
+    status = error.status
+    title = error.status === 404 ? "404" : "Error"
+    description = error.status === 404
+      ? "The requested page could not be found."
+      : error.statusText || description
   } else if (import.meta.env.DEV && error && error instanceof Error) {
-    details = error.message
-    stack = error.stack
+    description = error.message
   }
 
   return (
-    <main className="container mx-auto p-4 pt-16">
-      <h1>{message}</h1>
-      <p>{details}</p>
-      {stack && (
-        <pre className="w-full overflow-x-auto p-4">
-          <code>{stack}</code>
-        </pre>
-      )}
-    </main>
+    <div className="flex min-h-svh items-center justify-center bg-muted/30 p-4">
+      <Card className="w-full max-w-md text-center">
+        <CardHeader>
+          <CardTitle className="text-8xl font-bold text-destructive">
+            {status || "Error"}
+          </CardTitle>
+          <CardDescription className="text-lg font-medium">{title}</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-muted-foreground">{description}</p>
+          <div className="flex justify-center gap-4">
+            <Button asChild>
+              <Link to="/">Go Home</Link>
+            </Button>
+            <Button variant="outline" onClick={() => window.location.reload()}>
+              Reload
+            </Button>
+          </div>
+          {import.meta.env.DEV && error && error instanceof Error && (
+            <pre className="mt-4 max-h-40 overflow-auto rounded bg-muted p-2 text-xs">
+              <code>{error.stack}</code>
+            </pre>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   )
 }

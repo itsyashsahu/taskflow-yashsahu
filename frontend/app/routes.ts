@@ -14,4 +14,5 @@ export default [
     route("app/team/:userId", "routes/app/team/member-tasks.tsx"),
     route("app/settings", "routes/app/settings.tsx"),
   ]),
+  route("*", "routes/not-found.tsx"),
 ] satisfies RouteConfig
