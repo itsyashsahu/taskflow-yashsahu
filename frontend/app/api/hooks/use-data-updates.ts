@@ -15,6 +15,13 @@ export interface DataEvent {
   timestamp: number
 }
 
+let activeEventSource: EventSource | null = null
+
+export function disconnectDataUpdates() {
+  activeEventSource?.close()
+  activeEventSource = null
+}
+
 function getQueryKeysToInvalidate(event: DataEvent) {
   const keys: any[][] = []
 
@@ -51,14 +58,16 @@ export function useDataUpdates() {
   const connect = useCallback(() => {
     if (!token || !_hasHydrated) return
 
+    disconnectDataUpdates()
+
     const url = new URL(`${BASE_URL}/data-updates`)
     url.searchParams.set("token", token)
 
-    const eventSource = new EventSource(url.toString(), {
+    activeEventSource = new EventSource(url.toString(), {
       withCredentials: true,
     })
 
-    eventSource.onmessage = (event) => {
+    activeEventSource.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data)
         if (data.type !== "heartbeat" && data.type !== "connected") {
@@ -72,12 +81,12 @@ export function useDataUpdates() {
       }
     }
 
-    eventSource.onerror = () => {
-      eventSource.close()
+    activeEventSource.onerror = () => {
+      disconnectDataUpdates()
     }
 
     return () => {
-      eventSource.close()
+      disconnectDataUpdates()
     }
   }, [token, _hasHydrated, queryClient])
 

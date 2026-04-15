@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "~/components/ui/button"
 import {
   Dialog,
@@ -33,14 +33,22 @@ export function EditProjectModal({
   const updateProject = useUpdateProject()
   const deleteProject = useDeleteProject()
 
-  const handleOpenChange = (open: boolean) => {
+  useEffect(() => {
     if (open && project) {
       setName(project.name)
       setDescription(project.description || "")
     }
+
     setErrors({})
     setShowDeleteConfirm(false)
-    onOpenChange(open)
+    if (!open) {
+      setName("")
+      setDescription("")
+    }
+  }, [open, project])
+
+  const handleOpenChange = (nextOpen: boolean) => {
+    onOpenChange(nextOpen)
   }
 
   const validateForm = () => {
@@ -87,7 +95,7 @@ export function EditProjectModal({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[480px]">
+      <DialogContent className="sm:max-w-120">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>Edit Project</DialogTitle>

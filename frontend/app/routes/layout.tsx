@@ -23,7 +23,7 @@ export default function Layout() {
       <div className="min-h-svh bg-background">
         <div className="sticky top-0 z-50 flex h-14 items-center gap-3 border-b border-border bg-background px-4 lg:hidden">
           <MobileSidebar />
-          <Logo className="h-7" />
+          <Logo className="h-7 w-auto" containerClassName="max-w-[9.5rem]" />
         </div>
         <Sidebar />
         <main className="flex-1 lg:ml-60">

@@ -50,7 +50,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <>
       <div className="sticky top-0 z-10 flex h-14 items-center border-b border-border bg-sidebar px-4">
-        <Logo className="h-8" />
+        <Logo className="h-8 w-auto" containerClassName="max-w-[10.5rem]" />
       </div>
 
       <nav className="flex-1 space-y-2 p-4">

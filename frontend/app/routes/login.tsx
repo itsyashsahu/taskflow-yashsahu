@@ -15,6 +15,7 @@ export default function Login() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [submitError, setSubmitError] = useState("")
 
   const loginMutation = useLogin()
   const registerMutation = useRegister()
@@ -37,6 +38,7 @@ export default function Login() {
     }
 
     setErrors(newErrors)
+    setSubmitError("")
     return Object.keys(newErrors).length === 0
   }
 
@@ -55,7 +57,9 @@ export default function Login() {
       }
       navigate("/app", { replace: true })
     } catch (error: any) {
-      toast.error(error.message || "An error occurred")
+      const message = error?.message || "An error occurred"
+      setSubmitError(message)
+      toast.error(message)
       if (error.fields) {
         setErrors(error.fields)
       }
@@ -63,11 +67,15 @@ export default function Login() {
   }
 
   return (
-      <div className="flex min-h-svh items-center justify-center bg-muted/30 p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader className="space-y-1 text-center">
+      <div className="flex min-h-svh items-center justify-center bg-muted/30 p-4 sm:p-6">
+        <Card className="w-full max-w-md border-border/70 shadow-sm">
+          <CardHeader className="space-y-2 px-6 pt-6 pb-2 text-center">
             <div className="mb-4 flex justify-center">
-              <Logo className="h-10" />
+              <Logo
+                to="/login"
+                className="h-11 w-auto"
+                containerClassName="max-w-[12rem]"
+              />
             </div>
             <CardTitle className="text-2xl font-bold">
               {isRegister ? "Create an account" : "Welcome back"}
@@ -78,7 +86,12 @@ export default function Login() {
                 : "Enter your credentials to access your account"}
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-6 pb-6">
+            {submitError && (
+              <div className="mb-4 rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                {submitError}
+              </div>
+            )}
             <form onSubmit={handleSubmit} className="space-y-4">
               {isRegister && (
                 <div className="space-y-2">

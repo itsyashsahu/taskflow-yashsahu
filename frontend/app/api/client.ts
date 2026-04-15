@@ -3,7 +3,6 @@ import { hc } from "hono/client"
 import { useAuthStore } from "~/store/auth"
 
 export const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001"
-let isRedirectingToLogin = false
 
 export const api: any = hc(BASE_URL, {
   headers: () => {
@@ -24,24 +23,21 @@ type ResponseLike = {
   json: () => Promise<any>
 }
 
+async function readErrorPayload(response: ResponseLike) {
+  return response.json().catch(() => ({}))
+}
+
 export const requestJson = async <T>(responsePromise: Promise<ResponseLike>): Promise<T> => {
   const response = await responsePromise
-
-  const isAppRoute = window.location.pathname.startsWith("/app") || window.location.pathname === "/"
 
   if (response.status === 401) {
     useAuthStore.getState().logout()
 
-    if (isAppRoute) {
-      const onLoginPage = window.location.pathname === "/login"
-
-      if (!onLoginPage && !isRedirectingToLogin) {
-        isRedirectingToLogin = true
-        window.location.replace("/login")
-      }
-    }
-
-    return {} as T
+    const errorData = await readErrorPayload(response)
+    const error = new Error(errorData.error || "unauthorized")
+    ;(error as any).status = response.status
+    ;(error as any).fields = errorData.fields
+    throw error
   }
 
   if (response.status === 404) {
@@ -49,7 +45,7 @@ export const requestJson = async <T>(responsePromise: Promise<ResponseLike>): Pr
   }
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}))
+    const errorData = await readErrorPayload(response)
     const error = new Error(errorData.error || `HTTP error ${response.status}`);
     (error as any).status = response.status;
     (error as any).fields = errorData.fields;
