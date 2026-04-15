@@ -1,0 +1,19 @@
+name = "taskflow-api"
+main = "src/worker.ts"
+compatibility_flags = ["nodejs_compat"]
+compatibility_date = "2026-04-15"
+
+[env.production]
+name = "taskflow-api-prod"
+
+[env.staging]
+name = "taskflow-api-staging"
+
+[vars]
+NODE_ENV = "production"
+BACKEND_URL = "https://taskflow-api.yashsahu.workers.dev"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "taskflow"
+database_id = ""  # Your database ID
