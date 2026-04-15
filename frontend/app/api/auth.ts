@@ -1,4 +1,4 @@
-import { apiFetch, BASE_URL } from "./client"
+import { api, requestJson } from "./client"
 
 export interface User {
   id: string
@@ -19,10 +19,7 @@ export interface ApiError {
 
 export const authApi = {
   login: async (email: string, password: string): Promise<AuthResponse> => {
-    return apiFetch<AuthResponse>("/auth/login", {
-      method: "POST",
-      body: JSON.stringify({ email, password }),
-    })
+    return requestJson(api.auth.login.$post({ json: { email, password } }))
   },
 
   register: async (
@@ -30,9 +27,6 @@ export const authApi = {
     email: string,
     password: string
   ): Promise<AuthResponse> => {
-    return apiFetch<AuthResponse>("/auth/register", {
-      method: "POST",
-      body: JSON.stringify({ name, email, password }),
-    })
+    return requestJson(api.auth.register.$post({ json: { name, email, password } }))
   },
 }

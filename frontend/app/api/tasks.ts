@@ -1,17 +1,14 @@
-import { apiFetch } from "./client"
+import { api, requestJson } from "./client"
 import type { Task, UpdateTaskInput } from "./projects"
 
 export const tasksApi = {
   update: async (id: string, data: UpdateTaskInput): Promise<{ task: Task }> => {
-    return apiFetch<{ task: Task }>(`/tasks/${id}`, {
-      method: "PATCH",
-      body: JSON.stringify(data),
-    })
+    return requestJson(
+      api.tasks[":id"].$patch({ param: { id }, json: data } as any)
+    )
   },
 
   delete: async (id: string): Promise<void> => {
-    return apiFetch<void>(`/tasks/${id}`, {
-      method: "DELETE",
-    })
+    return requestJson(api.tasks[":id"].$delete({ param: { id } }))
   },
 }

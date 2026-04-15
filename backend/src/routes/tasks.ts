@@ -29,8 +29,8 @@ const updateTaskSchema = z.object({
   due_date: z.string().optional().nullable(),
 })
 
-// GET /projects/:id/tasks
-tasks.get("/projects/:id/tasks", async (c) => {
+// GET /:id/tasks (mounted at /projects)
+tasks.get("/:id/tasks", async (c) => {
   const { id } = c.req.param()
   const { status, assignee } = c.req.query()
 
@@ -50,8 +50,8 @@ tasks.get("/projects/:id/tasks", async (c) => {
   }
 })
 
-// POST /projects/:id/tasks
-tasks.post("/projects/:id/tasks", async (c) => {
+// POST /:id/tasks (mounted at /projects)
+tasks.post("/:id/tasks", async (c) => {
   const { id } = c.req.param()
   const { data, error } = await parseBody(c, createTaskSchema)
   if (error) return c.json(error, 400)
@@ -75,7 +75,7 @@ tasks.post("/projects/:id/tasks", async (c) => {
   }
 })
 
-// PATCH /tasks/:id
+// PATCH /:id (for updating single task)
 tasks.patch("/:id", async (c) => {
   const { id } = c.req.param()
   const { data, error } = await parseBody(c, updateTaskSchema)

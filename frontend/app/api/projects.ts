@@ -1,4 +1,4 @@
-import { apiFetch } from "./client"
+import { api, requestJson } from "./client"
 
 export interface Project {
   id: string
@@ -60,36 +60,30 @@ export interface UpdateTaskInput {
 
 export const projectsApi = {
   list: async (): Promise<{ projects: Project[] }> => {
-    return apiFetch<{ projects: Project[] }>("/projects")
+    return requestJson(api.projects.$get())
   },
 
   get: async (id: string): Promise<{ project: ProjectWithTasks }> => {
-    return apiFetch<{ project: ProjectWithTasks }>(`/projects/${id}`)
+    return requestJson(api.projects[":id"].$get({ param: { id } }))
   },
 
   create: async (
     data: CreateProjectInput
   ): Promise<{ project: Project }> => {
-    return apiFetch<{ project: Project }>("/projects", {
-      method: "POST",
-      body: JSON.stringify(data),
-    })
+    return requestJson(api.projects.$post({ json: data }))
   },
 
   update: async (
     id: string,
     data: UpdateProjectInput
   ): Promise<{ project: Project }> => {
-    return apiFetch<{ project: Project }>(`/projects/${id}`, {
-      method: "PATCH",
-      body: JSON.stringify(data),
-    })
+    return requestJson(
+      api.projects[":id"].$patch({ param: { id }, json: data } as any)
+    )
   },
 
   delete: async (id: string): Promise<void> => {
-    return apiFetch<void>(`/projects/${id}`, {
-      method: "DELETE",
-    })
+    return requestJson(api.projects[":id"].$delete({ param: { id } }))
   },
 
   getStats: async (
@@ -99,19 +93,18 @@ export const projectsApi = {
     by_status: { todo: number; in_progress: number; done: number }
     by_assignee: { user_id: string; name: string; count: number }[]
   }> => {
-    return apiFetch(`/projects/${id}/stats`)
+    return requestJson(api.projects[":id"].stats.$get({ param: { id } }))
   },
 
   listTasks: async (
     projectId: string,
     filters?: { status?: string; assignee?: string }
   ): Promise<{ tasks: Task[] }> => {
-    const params = new URLSearchParams()
-    if (filters?.status) params.set("status", filters.status)
-    if (filters?.assignee) params.set("assignee", filters.assignee)
-    const query = params.toString()
-    return apiFetch<{ tasks: Task[] }>(
-      `/projects/${projectId}/tasks${query ? `?${query}` : ""}`
+    return requestJson(
+      api.projects[":id"].tasks.$get({
+        param: { id: projectId },
+        query: filters ?? {},
+      } as any)
     )
   },
 
@@ -119,9 +112,11 @@ export const projectsApi = {
     projectId: string,
     data: CreateTaskInput
   ): Promise<{ task: Task }> => {
-    return apiFetch<{ task: Task }>(`/projects/${projectId}/tasks`, {
-      method: "POST",
-      body: JSON.stringify(data),
-    })
+    return requestJson(
+      api.projects[":id"].tasks.$post({
+        param: { id: projectId },
+        json: data,
+      } as any)
+    )
   },
 }

@@ -1,4 +1,4 @@
-import { apiFetch } from "./client"
+import { api, requestJson } from "./client"
 
 export interface User {
   id: string
@@ -36,10 +36,10 @@ export interface UserWithTasks {
 
 export const usersApi = {
   list: async (): Promise<{ users: User[] }> => {
-    return apiFetch<{ users: User[] }>("/users")
+    return requestJson(api.users.$get())
   },
 
   getTasks: async (userId: string): Promise<UserWithTasks> => {
-    return apiFetch<UserWithTasks>(`/users/${userId}/tasks`)
+    return requestJson(api.users[":id"].tasks.$get({ param: { id: userId } }))
   },
 }

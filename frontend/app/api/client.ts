@@ -1,22 +1,31 @@
+import { hc } from "hono/client"
+import type { AppType } from "../../../backend/src/app"
+
 import { useAuthStore } from "~/store/auth"
 
 export const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001"
 
-export const apiFetch = async <T>(
-  path: string,
-  options?: RequestInit
-): Promise<T> => {
-  const token = useAuthStore.getState().token
-  const headers: HeadersInit = {
-    "Content-Type": "application/json",
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    ...options?.headers,
-  }
+export const api = hc<AppType>(BASE_URL, {
+  headers: () => {
+    const token = useAuthStore.getState().token
+    const headers: Record<string, string> = {}
 
-  const response = await fetch(`${BASE_URL}${path}`, {
-    ...options,
-    headers,
-  })
+    if (token) {
+      headers.Authorization = `Bearer ${token}`
+    }
+
+    return headers
+  },
+})
+
+type ResponseLike = {
+  ok: boolean
+  status: number
+  json: () => Promise<any>
+}
+
+export const requestJson = async <T>(responsePromise: Promise<ResponseLike>): Promise<T> => {
+  const response = await responsePromise
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}))
@@ -30,5 +39,5 @@ export const apiFetch = async <T>(
     return {} as T
   }
 
-  return response.json()
+  return response.json() as Promise<T>
 }

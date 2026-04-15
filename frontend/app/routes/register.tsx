@@ -4,6 +4,7 @@ import { Button } from "~/components/ui/button"
 import { Input } from "~/components/ui/input"
 import { Label } from "~/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card"
+import { Logo } from "~/components/Logo"
 import { useLogin, useRegister } from "~/api/hooks"
 import { toast } from "sonner"
 
@@ -65,6 +66,9 @@ export default function Register() {
     <div className="flex min-h-svh items-center justify-center bg-muted/30 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1 text-center">
+          <div className="mb-4 flex justify-center">
+            <Logo className="h-10" />
+          </div>
           <CardTitle className="text-2xl font-bold">
             {isRegister ? "Create an account" : "Welcome back"}
           </CardTitle>
