@@ -1,3 +1,5 @@
+import { useAuthStore } from "~/store/auth"
+
 export const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001"
 
 export const apiFetch = async <T>(
@@ -30,6 +32,3 @@ export const apiFetch = async <T>(
 
   return response.json()
 }
-
-// Re-export the store for use in apiFetch
-import { useAuthStore } from "~/store/auth"

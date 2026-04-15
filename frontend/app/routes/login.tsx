@@ -1,20 +1,30 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Link, useNavigate } from "react-router"
 import { Button } from "~/components/ui/button"
 import { Input } from "~/components/ui/input"
 import { Label } from "~/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card"
+import { Logo } from "~/components/Logo"
 import { useLogin, useRegister } from "~/api/hooks"
+import { useAuth } from "~/store/auth"
 import { toast } from "sonner"
 
 export default function Login() {
+  const { isAuthenticated, _hasHydrated } = useAuth()
+  const navigateFn = useNavigate()
+
+  useEffect(() => {
+    if (_hasHydrated && isAuthenticated) {
+      navigateFn("/projects", { replace: true })
+    }
+  }, [_hasHydrated, isAuthenticated, navigateFn])
+
   const [isRegister, setIsRegister] = useState(false)
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  const navigate = useNavigate()
   const loginMutation = useLogin()
   const registerMutation = useRegister()
 
@@ -52,7 +62,7 @@ export default function Login() {
         await loginMutation.mutateAsync({ email, password })
         toast.success("Welcome back!")
       }
-      navigate("/projects")
+      navigateFn("/projects")
     } catch (error: any) {
       toast.error(error.message || "An error occurred")
       if (error.fields) {
@@ -65,6 +75,9 @@ export default function Login() {
     <div className="flex min-h-svh items-center justify-center bg-muted/30 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1 text-center">
+          <div className="mb-4 flex justify-center">
+            <Logo className="h-10" />
+          </div>
           <CardTitle className="text-2xl font-bold">
             {isRegister ? "Create an account" : "Welcome back"}
           </CardTitle>

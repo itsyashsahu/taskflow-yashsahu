@@ -9,6 +9,7 @@ import {
 } from "lucide-react"
 import { Button } from "~/components/ui/button"
 import { Avatar, AvatarFallback } from "~/components/ui/avatar"
+import { Logo } from "~/components/Logo"
 import { useAuthStore, useLogout } from "~/store/auth"
 import { cn } from "~/lib/utils"
 
@@ -36,10 +37,7 @@ export function Sidebar() {
   return (
     <aside className="fixed left-0 top-0 z-40 flex h-svh w-60 flex-col border-r border-border bg-sidebar text-sidebar-foreground">
       <div className="flex h-14 items-center border-b border-border px-4">
-        <Link to="/projects" className="flex items-center gap-2 font-semibold">
-          <CheckSquare className="size-5 text-primary" />
-          <span>TaskFlow</span>
-        </Link>
+        <Logo className="h-8" />
       </div>
 
       <nav className="flex-1 space-y-1 p-2">
@@ -63,15 +61,15 @@ export function Sidebar() {
         })}
       </nav>
 
-<div className="border-t border-border p-2">
-    <Link
-      to="/projects?create=true"
-      className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors"
-    >
-      <Plus className="size-4" />
-      New Project
-    </Link>
-  </div>
+      <div className="border-t border-border p-2">
+        <Link
+          to="/projects?create=true"
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors"
+        >
+          <Plus className="size-4" />
+          New Project
+        </Link>
+      </div>
 
       <div className="border-t border-border p-3">
         <div className="flex items-center gap-3">
