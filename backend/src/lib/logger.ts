@@ -1,4 +1,5 @@
 import pino from "pino";
+import type { Logger } from "pino";
 import { randomUUID } from "crypto";
 
 export const baseLog = pino({
@@ -7,7 +8,7 @@ export const baseLog = pino({
   timestamp: () => `,"time":"${new Date().toISOString()}"`,
 });
 
-const requestLoggers = new Map<string, pino.Logger>();
+const requestLoggers = new Map<string, Logger>();
 
 let currentRequestId: string | null = null;
 
