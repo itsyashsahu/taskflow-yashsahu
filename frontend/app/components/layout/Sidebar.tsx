@@ -53,7 +53,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         <Logo className="h-8" />
       </div>
 
-      <nav className="flex-1 space-y-1 p-2">
+      <nav className="flex-1 space-y-2 p-4">
         {navItems.map((item) => {
           const isActive = location.pathname.startsWith(item.path)
           return (
@@ -62,33 +62,35 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
               to={item.path}
               onClick={onNavigate}
               className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                "flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors",
                 isActive
                   ? "bg-sidebar-accent text-sidebar-accent-foreground"
                   : "text-sidebar-foreground hover:bg-sidebar-accent/50"
               )}
             >
-              <item.icon className="size-4" />
+              <item.icon className="size-5" />
               {item.label}
             </Link>
           )
         })}
       </nav>
 
-      <div className="border-t border-border p-2">
+      <div className="border-t border-border">
         <Link
           to="/app/projects?create=true"
           onClick={onNavigate}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent/50"
+          className="block w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent/50"
         >
-          <Plus className="size-4" />
-          New Project
+          <div className="flex items-center gap-3">
+            <Plus className="size-4" />
+            <span>New Project</span>
+          </div>
         </Link>
       </div>
 
-      <div className="border-t border-border p-3">
-        <div className="flex items-center gap-3">
-          <Avatar className="size-8">
+      <div className="border-t border-border p-4">
+        <div className="flex items-center gap-4">
+          <Avatar className="size-9">
             <AvatarFallback className="bg-primary text-primary-foreground text-xs">
               {user ? getInitials(user.name) : "?"}
             </AvatarFallback>
@@ -102,7 +104,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           <Button
             variant="ghost"
             size="icon"
-            className="size-8 text-muted-foreground hover:text-foreground"
+            className="size-9 text-muted-foreground hover:text-foreground"
             onClick={handleLogout}
           >
             <LogOut className="size-4" />

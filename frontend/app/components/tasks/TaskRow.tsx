@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router"
 import { Calendar } from "lucide-react"
 import { Avatar, AvatarFallback } from "~/components/ui/avatar"
 import { StatusIcon } from "./StatusIcon"
@@ -15,7 +14,6 @@ interface TaskRowProps {
 }
 
 export function TaskRow({ task, projectId, onEdit }: TaskRowProps) {
-  const navigate = useNavigate()
   const updateTask = useUpdateTask()
 
   const isDone = task.status === "done"
@@ -68,11 +66,8 @@ export function TaskRow({ task, projectId, onEdit }: TaskRowProps) {
         <StatusIcon status={task.status} />
       </div>
 
-      <div
-        className="flex-1 min-w-0 cursor-pointer"
-        onClick={() => onEdit(task)}
-      >
-        <p className={cn("font-medium truncate", isDone && "line-through")}>
+      <div className="min-w-0 flex-1 cursor-pointer" onClick={() => onEdit(task)}>
+        <p className={cn("truncate font-medium", isDone && "line-through")}>
           {task.title}
         </p>
         {task.description && (
@@ -101,7 +96,7 @@ export function TaskRow({ task, projectId, onEdit }: TaskRowProps) {
       {task.due_date && (
         <div
           className={cn(
-            "flex items-center gap-1 shrink-0 text-sm",
+            "shrink-0 flex items-center gap-1 text-sm",
             isOverdue ? "text-destructive" : "text-muted-foreground"
           )}
         >

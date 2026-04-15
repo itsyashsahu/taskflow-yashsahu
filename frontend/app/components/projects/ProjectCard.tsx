@@ -49,20 +49,28 @@ export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
   }
 
   return (
-    <Card className="group relative overflow-hidden transition-shadow hover:shadow-md">
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between">
-          <Link
-            to={`/app/projects/${project.id}`}
-            className="flex-1 min-w-0 hover:opacity-80 transition-opacity"
-          >
-            <h3 className="font-semibold truncate">{project.name}</h3>
-            {project.description && (
-              <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
-                {project.description}
-              </p>
-            )}
-          </Link>
+    <Card
+      className="group relative overflow-hidden transition-shadow hover:shadow-md cursor-pointer"
+      onClick={() => {
+        // Only navigate if click is not on the dropdown menu
+        // We'll handle this by stopping propagation on the dropdown trigger
+      }}
+    >
+      <CardContent className="p-5">
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex-1 min-w-0">
+            <Link
+              to={`/app/projects/${project.id}`}
+              className="block hover:opacity-80 transition-opacity"
+            >
+              <h3 className="font-semibold truncate">{project.name}</h3>
+              {project.description && (
+                <p className="mt-2 text-sm text-muted-foreground line-clamp-2">
+                  {project.description}
+                </p>
+              )}
+            </Link>
+          </div>
 
           {isOwner && (
             <DropdownMenu>
@@ -71,17 +79,20 @@ export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
                   <button
                     className="inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 size-8 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-muted hover:text-foreground"
                     type="button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                    }}
                   />
                 }
               >
                 <MoreHorizontal className="size-4" />
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="end" className="w-[200px]">
                 <DropdownMenuItem onClick={() => onEdit(project)}>
                   <Pencil className="mr-2 size-4" />
                   Edit
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
+                <DropdownMenuSeparator className="my-1" />
                 <DropdownMenuItem
                   onClick={() => onDelete(project)}
                   className="text-destructive focus:text-destructive"
@@ -94,25 +105,28 @@ export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
           )}
         </div>
 
-        <div className="mt-4 space-y-3">
-          <div className="flex items-center justify-between text-sm">
-            <Badge variant="secondary" className="capitalize">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <Badge variant="secondary" className="capitalize px-3 py-1 text-sm">
               {status}
             </Badge>
-            <span className="text-muted-foreground">
-              {doneTasks}/{totalTasks} tasks
-            </span>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span>{doneTasks}</span>
+              <span>/</span>
+              <span>{totalTasks}</span>
+              <span className="ml-1">tasks</span>
+            </div>
           </div>
 
-          <Progress value={progress} className="h-2" />
+          <Progress value={progress} className="h-2.5 mt-1" />
 
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <Avatar className="size-6">
-              <AvatarFallback className="text-[10px]">
+          <div className="flex items-center justify-between text-xs text-muted-foreground mt-4">
+            <Avatar className="size-7">
+              <AvatarFallback className="text-[11px]">
                 {getInitials(project.name)}
               </AvatarFallback>
             </Avatar>
-            <span>
+            <span className="whitespace-nowrap">
               {new Date(project.created_at).toLocaleDateString()}
             </span>
           </div>
