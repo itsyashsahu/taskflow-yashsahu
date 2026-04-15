@@ -1,10 +1,12 @@
-import { Hono } from 'hono'
-import { z } from 'zod'
-import { sql } from '../db/client.js'
-import type { AuthVariables } from '../middleware/auth.js'
-import { parseBody } from '../lib/validate.js'
+import { Hono } from "hono"
+import { z } from "zod"
 
-const tasks = new Hono<{ Variables: AuthVariables }>()
+import type { AppVariables } from "../lib/context.js"
+import { projectsRepository } from "../repositories/projects.repository.js"
+import { tasksRepository } from "../repositories/tasks.repository.js"
+import { parseBody } from "../lib/validate.js"
+
+const tasks = new Hono<{ Variables: AppVariables }>()
 
 const taskStatusEnum = z.enum(['todo', 'in_progress', 'done'])
 const taskPriorityEnum = z.enum(['low', 'medium', 'high'])
@@ -28,26 +30,18 @@ const updateTaskSchema = z.object({
 })
 
 // GET /projects/:id/tasks
-tasks.get('/projects/:id/tasks', async (c) => {
+tasks.get("/projects/:id/tasks", async (c) => {
   const { id } = c.req.param()
   const { status, assignee } = c.req.query()
 
   try {
-    const [project] = await sql`SELECT id FROM projects WHERE id = ${id}`
+    const project = await projectsRepository.getById(c.get("db"), id)
     if (!project) return c.json({ error: 'not found' }, 404)
 
-    const rows = await sql`
-      SELECT
-        t.id, t.title, t.description, t.status, t.priority,
-        t.project_id, t.assignee_id, t.due_date, t.created_at, t.updated_at,
-        u.name AS assignee_name, u.email AS assignee_email
-      FROM tasks t
-      LEFT JOIN users u ON u.id = t.assignee_id
-      WHERE t.project_id = ${id}
-        ${status ? sql`AND t.status = ${status}::task_status` : sql``}
-        ${assignee ? sql`AND t.assignee_id = ${assignee}` : sql``}
-      ORDER BY t.created_at ASC
-    `
+    const rows = await tasksRepository.listForProject(c.get("db"), id, {
+      status,
+      assignee,
+    })
 
     return c.json({ tasks: rows })
   } catch (err) {
@@ -57,28 +51,23 @@ tasks.get('/projects/:id/tasks', async (c) => {
 })
 
 // POST /projects/:id/tasks
-tasks.post('/projects/:id/tasks', async (c) => {
+tasks.post("/projects/:id/tasks", async (c) => {
   const { id } = c.req.param()
   const { data, error } = await parseBody(c, createTaskSchema)
   if (error) return c.json(error, 400)
 
   try {
-    const [project] = await sql`SELECT id FROM projects WHERE id = ${id}`
+    const project = await projectsRepository.getById(c.get("db"), id)
     if (!project) return c.json({ error: 'not found' }, 404)
 
-    const [task] = await sql`
-      INSERT INTO tasks (title, description, status, priority, project_id, assignee_id, due_date)
-      VALUES (
-        ${data.title},
-        ${data.description ?? null},
-        ${data.status ?? 'todo'},
-        ${data.priority ?? 'medium'},
-        ${id},
-        ${data.assignee_id ?? null},
-        ${data.due_date ?? null}
-      )
-      RETURNING *
-    `
+    const task = await tasksRepository.create(c.get("db"), id, {
+      title: data.title,
+      description: data.description ?? null,
+      status: data.status,
+      priority: data.priority,
+      assignee_id: data.assignee_id ?? null,
+      due_date: data.due_date ?? null,
+    })
     return c.json({ task }, 201)
   } catch (err) {
     console.error(err)
@@ -87,16 +76,24 @@ tasks.post('/projects/:id/tasks', async (c) => {
 })
 
 // PATCH /tasks/:id
-tasks.patch('/:id', async (c) => {
+tasks.patch("/:id", async (c) => {
   const { id } = c.req.param()
   const { data, error } = await parseBody(c, updateTaskSchema)
   if (error) return c.json(error, 400)
 
   try {
-    const [task] = await sql`SELECT id FROM tasks WHERE id = ${id}`
+    const task = await tasksRepository.getById(c.get("db"), id)
     if (!task) return c.json({ error: 'not found' }, 404)
 
-    const updates: Record<string, unknown> = { updated_at: new Date() }
+    const updates: {
+      title?: string
+      description?: string | null
+      status?: "todo" | "in_progress" | "done"
+      priority?: "low" | "medium" | "high"
+      assignee_id?: string | null
+      due_date?: string | null
+      updated_at?: Date
+    } = { updated_at: new Date() }
     if (data.title !== undefined) updates.title = data.title
     if (data.description !== undefined) updates.description = data.description
     if (data.status !== undefined) updates.status = data.status
@@ -104,12 +101,7 @@ tasks.patch('/:id', async (c) => {
     if (data.assignee_id !== undefined) updates.assignee_id = data.assignee_id
     if (data.due_date !== undefined) updates.due_date = data.due_date
 
-    const [updated] = await sql`
-      UPDATE tasks
-      SET ${sql(updates)}
-      WHERE id = ${id}
-      RETURNING *
-    `
+    const updated = await tasksRepository.update(c.get("db"), id, updates)
     return c.json({ task: updated })
   } catch (err) {
     console.error(err)
@@ -118,23 +110,18 @@ tasks.patch('/:id', async (c) => {
 })
 
 // DELETE /tasks/:id — only project owner OR task assignee
-tasks.delete('/:id', async (c) => {
-  const userId = c.get('userId')
+tasks.delete("/:id", async (c) => {
+  const userId = c.get("userId")
   const { id } = c.req.param()
 
   try {
-    const [task] = await sql`
-      SELECT t.id, t.assignee_id, p.owner_id
-      FROM tasks t
-      JOIN projects p ON p.id = t.project_id
-      WHERE t.id = ${id}
-    `
+    const task = await tasksRepository.getForDeletion(c.get("db"), id)
     if (!task) return c.json({ error: 'not found' }, 404)
     if (task.owner_id !== userId && task.assignee_id !== userId) {
       return c.json({ error: 'forbidden' }, 403)
     }
 
-    await sql`DELETE FROM tasks WHERE id = ${id}`
+    await tasksRepository.delete(c.get("db"), id)
     return new Response(null, { status: 204 })
   } catch (err) {
     console.error(err)

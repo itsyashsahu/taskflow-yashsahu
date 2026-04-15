@@ -1,11 +1,13 @@
-import { Hono } from 'hono'
-import { sign } from 'hono/jwt'
-import { z } from 'zod'
-import { sql } from '../db/client.js'
-import { comparePassword, hashPassword } from '../lib/hash.js'
-import { parseBody } from '../lib/validate.js'
+import { Hono } from "hono"
+import { sign } from "hono/jwt"
+import { z } from "zod"
 
-const auth = new Hono()
+import type { AppVariables } from "../lib/context.js"
+import { comparePassword, hashPassword } from "../lib/hash.js"
+import { authRepository } from "../repositories/auth.repository.js"
+import { parseBody } from "../lib/validate.js"
+
+const auth = new Hono<{ Variables: AppVariables }>()
 
 const registerSchema = z.object({
   name: z.string().min(1, 'name is required'),
@@ -24,19 +26,20 @@ auth.post('/register', async (c) => {
   if (error) return c.json(error, 400)
 
   try {
-    // Check if email already exists
-    const existing = await sql`SELECT id FROM users WHERE email = ${data.email}`
-    if (existing.length > 0) {
+    const db = c.get("db")
+    const existing = await authRepository.findUserByEmail(db, data.email)
+    if (existing) {
       return c.json({ error: 'email already in use' }, 400)
     }
 
     const hashedPassword = await hashPassword(data.password)
 
-    const [user] = await sql`
-      INSERT INTO users (name, email, password)
-      VALUES (${data.name}, ${data.email}, ${hashedPassword})
-      RETURNING id, name, email, created_at
-    `
+    const user = await authRepository.createUser(
+      db,
+      data.name,
+      data.email,
+      hashedPassword
+    )
 
     const token = await sign(
       {
@@ -60,11 +63,8 @@ auth.post('/login', async (c) => {
   if (error) return c.json(error, 400)
 
   try {
-    const [user] = await sql`
-      SELECT id, name, email, password, created_at
-      FROM users
-      WHERE email = ${data.email}
-    `
+    const db = c.get("db")
+    const user = await authRepository.findUserByEmail(db, data.email)
 
     if (!user) {
       return c.json({ error: 'unauthorized' }, 401)
