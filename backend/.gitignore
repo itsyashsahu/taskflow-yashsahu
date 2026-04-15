@@ -4,3 +4,4 @@ node_modules
 !.env.schema
 !.env.example
 dist
+/.wrangler/

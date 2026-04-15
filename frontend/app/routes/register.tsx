@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Link, useNavigate } from "react-router"
+import { Link } from "react-router"
 import { Button } from "~/components/ui/button"
 import { Input } from "~/components/ui/input"
 import { Label } from "~/components/ui/label"
@@ -15,7 +15,6 @@ export default function Register() {
   const [password, setPassword] = useState("")
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  const navigate = useNavigate()
   const loginMutation = useLogin()
   const registerMutation = useRegister()
 
@@ -53,7 +52,6 @@ export default function Register() {
         await loginMutation.mutateAsync({ email, password })
         toast.success("Welcome back!")
       }
-      navigate("/projects")
     } catch (error: any) {
       toast.error(error.message || "An error occurred")
       if (error.fields) {
@@ -63,116 +61,116 @@ export default function Register() {
   }
 
   return (
-    <div className="flex min-h-svh items-center justify-center bg-muted/30 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1 text-center">
-          <div className="mb-4 flex justify-center">
-            <Logo className="h-10" />
-          </div>
-          <CardTitle className="text-2xl font-bold">
-            {isRegister ? "Create an account" : "Welcome back"}
-          </CardTitle>
-          <CardDescription>
-            {isRegister
-              ? "Enter your details to create your account"
-              : "Enter your credentials to access your account"}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {isRegister && (
+      <div className="flex min-h-svh items-center justify-center bg-muted/30 p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="space-y-1 text-center">
+            <div className="mb-4 flex justify-center">
+              <Logo className="h-10" />
+            </div>
+            <CardTitle className="text-2xl font-bold">
+              {isRegister ? "Create an account" : "Welcome back"}
+            </CardTitle>
+            <CardDescription>
+              {isRegister
+                ? "Enter your details to create your account"
+                : "Enter your credentials to access your account"}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {isRegister && (
+                <div className="space-y-2">
+                  <Label htmlFor="name">Name</Label>
+                  <Input
+                    id="name"
+                    type="text"
+                    placeholder="John Doe"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    aria-invalid={!!errors.name}
+                  />
+                  {errors.name && (
+                    <p className="text-xs text-destructive">{errors.name}</p>
+                  )}
+                </div>
+              )}
+
               <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
+                <Label htmlFor="email">Email</Label>
                 <Input
-                  id="name"
-                  type="text"
-                  placeholder="John Doe"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  aria-invalid={!!errors.name}
+                  id="email"
+                  type="email"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  aria-invalid={!!errors.email}
                 />
-                {errors.name && (
-                  <p className="text-xs text-destructive">{errors.name}</p>
+                {errors.email && (
+                  <p className="text-xs text-destructive">{errors.email}</p>
                 )}
               </div>
-            )}
 
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                aria-invalid={!!errors.email}
-              />
-              {errors.email && (
-                <p className="text-xs text-destructive">{errors.email}</p>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder={isRegister ? "Min 8 characters" : "********"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  aria-invalid={!!errors.password}
+                />
+                {errors.password && (
+                  <p className="text-xs text-destructive">{errors.password}</p>
+                )}
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={loginMutation.isPending || registerMutation.isPending}
+              >
+                {loginMutation.isPending || registerMutation.isPending
+                  ? "Please wait..."
+                  : isRegister
+                  ? "Create account"
+                  : "Sign in"}
+              </Button>
+            </form>
+
+            <div className="mt-4 text-center text-sm">
+              {isRegister ? (
+                <>
+                  Already have an account?{" "}
+                  <Link
+                    to="/login"
+                    className="font-medium text-primary hover:underline"
+                    onClick={() => {
+                      setIsRegister(false)
+                      setErrors({})
+                    }}
+                  >
+                    Sign in
+                  </Link>
+                </>
+              ) : (
+                <>
+                  Don't have an account?{" "}
+                  <Link
+                    to="/register"
+                    className="font-medium text-primary hover:underline"
+                    onClick={() => {
+                      setIsRegister(true)
+                      setErrors({})
+                    }}
+                  >
+                    Create one
+                  </Link>
+                </>
               )}
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder={isRegister ? "Min 8 characters" : "********"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                aria-invalid={!!errors.password}
-              />
-              {errors.password && (
-                <p className="text-xs text-destructive">{errors.password}</p>
-              )}
-            </div>
-
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={loginMutation.isPending || registerMutation.isPending}
-            >
-              {loginMutation.isPending || registerMutation.isPending
-                ? "Please wait..."
-                : isRegister
-                ? "Create account"
-                : "Sign in"}
-            </Button>
-          </form>
-
-          <div className="mt-4 text-center text-sm">
-            {isRegister ? (
-              <>
-                Already have an account?{" "}
-                <Link
-                  to="/login"
-                  className="font-medium text-primary hover:underline"
-                  onClick={() => {
-                    setIsRegister(false)
-                    setErrors({})
-                  }}
-                >
-                  Sign in
-                </Link>
-              </>
-            ) : (
-              <>
-                Don't have an account?{" "}
-                <Link
-                  to="/register"
-                  className="font-medium text-primary hover:underline"
-                  onClick={() => {
-                    setIsRegister(true)
-                    setErrors({})
-                  }}
-                >
-                  Create one
-                </Link>
-              </>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+          </CardContent>
+        </Card>
+      </div>
   )
 }

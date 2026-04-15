@@ -64,7 +64,7 @@ export default function MemberTasks() {
   return (
     <div className="p-4 sm:p-6">
       <Link
-        to="/team"
+        to="/app/team"
         className="mb-4 inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
       >
         <ArrowLeft className="size-4" />

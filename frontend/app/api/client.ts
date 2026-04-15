@@ -27,11 +27,25 @@ type ResponseLike = {
 export const requestJson = async <T>(responsePromise: Promise<ResponseLike>): Promise<T> => {
   const response = await responsePromise
 
+  const isAppRoute = window.location.pathname.startsWith("/app") || window.location.pathname === "/"
+
+  if (response.status === 401) {
+    if (isAppRoute) {
+      useAuthStore.getState().logout()
+      window.location.href = "/login"
+    }
+    return {} as T
+  }
+
+  if (response.status === 404) {
+    return {} as T
+  }
+
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}))
-    const error = new Error(errorData.error || `HTTP error ${response.status}`)
-    ;(error as any).status = response.status
-    ;(error as any).fields = errorData.fields
+    const error = new Error(errorData.error || `HTTP error ${response.status}`);
+    (error as any).status = response.status;
+    (error as any).fields = errorData.fields;
     throw error
   }
 

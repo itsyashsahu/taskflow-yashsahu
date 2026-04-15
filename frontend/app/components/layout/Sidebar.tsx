@@ -22,10 +22,10 @@ import {
 } from "~/components/ui/sheet"
 
 const navItems = [
-  { path: "/projects", label: "Projects", icon: FolderKanban },
-  { path: "/my-tasks", label: "My Tasks", icon: CheckSquare },
-  { path: "/team", label: "Team", icon: Users },
-  { path: "/settings", label: "Settings", icon: Settings },
+  { path: "/app/projects", label: "Projects", icon: FolderKanban },
+  { path: "/app/my-tasks", label: "My Tasks", icon: CheckSquare },
+  { path: "/app/team", label: "Team", icon: Users },
+  { path: "/app/settings", label: "Settings", icon: Settings },
 ]
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
@@ -77,7 +77,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 
       <div className="border-t border-border p-2">
         <Link
-          to="/projects?create=true"
+          to="/app/projects?create=true"
           onClick={onNavigate}
           className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent/50"
         >
