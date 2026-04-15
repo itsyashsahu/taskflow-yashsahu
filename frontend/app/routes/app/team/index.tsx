@@ -53,7 +53,7 @@ export default function Team() {
       {users && users.length > 0 ? (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {users.map((user) => (
-            <Link key={user.id} to={`/team/${user.id}`}>
+            <Link key={user.id} to={user.id ? `/app/team/${user.id}` : "/app/team"}>
               <Card className="transition-shadow hover:shadow-md">
                 <CardContent className="p-4 sm:p-5">
                   <div className="flex items-start gap-3">
