@@ -3,11 +3,10 @@ import { eventBroadcaster } from "../lib/events.js"
 
 const sse = new Hono()
 
-sse.get("/data-updates", (c) => {
+sse.get("/", (c) => {
   const stream = new ReadableStream({
     start(controller) {
       const encoder = new TextEncoder()
-      const encoder2 = new TextEncoder()
 
       const send = (data: any) => {
         const message = `data: ${JSON.stringify(data)}\n\n`
@@ -18,7 +17,7 @@ sse.get("/data-updates", (c) => {
         send(event)
       }
 
-      eventBroadcaster.subscribe(listener)
+      const unsubscribe = eventBroadcaster.subscribe(listener)
 
       // Send initial connection message
       send({ type: "connected", timestamp: Date.now() })
@@ -29,7 +28,7 @@ sse.get("/data-updates", (c) => {
       }, 30000)
 
       c.req.raw.signal.addEventListener("abort", () => {
-        eventBroadcaster.unsubscribe(listener)
+        unsubscribe()
         clearInterval(heartbeat)
         controller.close()
       })

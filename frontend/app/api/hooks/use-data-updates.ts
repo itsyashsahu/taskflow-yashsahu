@@ -51,11 +51,11 @@ export function useDataUpdates() {
   const connect = useCallback(() => {
     if (!token || !_hasHydrated) return
 
-    const eventSource = new EventSource(`${BASE_URL}/data-updates`, {
+    const url = new URL(`${BASE_URL}/data-updates`)
+    url.searchParams.set("token", token)
+
+    const eventSource = new EventSource(url.toString(), {
       withCredentials: true,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
     })
 
     eventSource.onmessage = (event) => {

@@ -20,7 +20,8 @@ app.use("*", requestIdMiddleware)
 app.use("*", loggerMiddleware)
 app.use("*", transactionMiddleware)
 app.use("*", cors({
-  origin: "*",
+  origin: (origin) => origin,
+  credentials: true,
   allowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowHeaders: ["Content-Type", "Authorization"],
 }))
@@ -29,6 +30,7 @@ app.use("/projects/*", requireAuth)
 app.use("/tasks/*", requireAuth)
 app.use("/users/*", requireAuth)
 app.use("/data-updates", requireAuth)
+app.use("/data-updates/*", requireAuth)
 
 app.route("/auth", authRoutes)
 app.route("/projects", projectRoutes)
