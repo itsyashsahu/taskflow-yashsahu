@@ -18,7 +18,11 @@ app.get("/health", (c) => c.json({ status: "ok" }))
 app.use("*", requestIdMiddleware)
 app.use("*", loggerMiddleware)
 app.use("*", transactionMiddleware)
-app.use("*", cors())
+app.use("*", cors({
+  origin: "*",
+  allowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowHeaders: ["Content-Type", "Authorization"],
+}))
 
 app.use("/projects/*", requireAuth)
 app.use("/tasks/*", requireAuth)

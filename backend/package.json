@@ -10,6 +10,8 @@
   },
   "scripts": {
     "dev": "APP_ENV=local varlock run -- tsx watch src/index.ts",
+    "db:up": "bash scripts/start-db.sh",
+    "db:down": "bash scripts/stop-db.sh",
     "build": "tsc",
     "start": "APP_ENV=local varlock run -- node dist/index.js",
     "kill": "lsof -ti:3001 | xargs kill -9 2>/dev/null || echo 'No process on port 3001'",

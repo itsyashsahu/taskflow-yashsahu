@@ -1,9 +1,9 @@
 -- Password is 'password123' (bcrypt cost 12)
 INSERT INTO users (id, name, email, password) VALUES
   ('00000000-0000-0000-0000-000000000001', 'Test User', 'test@example.com',
-   '$2a$12$7gobl2Dhu4QMj1ZwEBEbce1SjAw4gdUd9Y4AiLElvkABqU7wizI3i'),
+   '$2a$12$sFXR1f3c2xUtulnqnJqoFu89IFFandPbdHVVhZGM9PNm9COLsfJC6'),
   ('00000000-0000-0000-0000-000000000002', 'Jane Doe', 'jane@example.com',
-   '$2a$12$7gobl2Dhu4QMj1ZwEBEbce1SjAw4gdUd9Y4AiLElvkABqU7wizI3i');
+   '$2a$12$sFXR1f3c2xUtulnqnJqoFu89IFFandPbdHVVhZGM9PNm9COLsfJC6');
 
 INSERT INTO projects (id, name, description, owner_id) VALUES
   ('00000000-0000-0000-0000-000000000010', 'Website Redesign',
