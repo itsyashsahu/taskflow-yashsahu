@@ -1,56 +1,51 @@
+version: '3.8'
+
 services:
-  db:
+  postgres:
     image: postgres:16-alpine
+    container_name: taskflow-postgres
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: taskflow
+      POSTGRES_PASSWORD: taskflow
       POSTGRES_DB: taskflow
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U taskflow -d taskflow"]
       interval: 5s
       timeout: 5s
       retries: 5
 
-  migrate:
-    image: ghcr.io/amacneil/dbmate:latest
-    environment:
-      DATABASE_URL: postgres://postgres:postgres@db:5432/taskflow?sslmode=disable
-    volumes:
-      - ./backend/db:/db
-    command: ["up"]
-    depends_on:
-      db:
-        condition: service_healthy
-
-  seed:
-    image: postgres:16-alpine
-    environment:
-      PGPASSWORD: postgres
-    volumes:
-      - ./backend/db/seed.sql:/seed.sql
-    command: >
-      psql -h db -U postgres -d taskflow -f /seed.sql
-    depends_on:
-      - migrate
-
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: taskflow-backend
+    environment:
+      DATABASE_URL: postgres://taskflow:taskflow@postgres:5432/taskflow
+      APP_ENV: production
+      PORT: 3001
     ports:
       - "3001:3001"
-    env_file: .env
     depends_on:
-      - seed
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: taskflow-frontend
+    environment:
+      VITE_API_URL: http://localhost:3001
     ports:
-      - "3000:80"
+      - "5173:5173"
     depends_on:
       - backend
+    restart: unless-stopped
 
 volumes:
   postgres_data:

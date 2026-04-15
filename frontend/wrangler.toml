@@ -1,0 +1,17 @@
+name = "taskflow-web"
+main = "./build/server/index.js"
+compatibility_date = "2026-04-15"
+compatibility_flags = ["nodejs_compat"]
+
+[assets]
+directory = "./build/client"
+
+[env.production]
+name = "taskflow-web-prod"
+
+[env.staging]  
+name = "taskflow-web-staging"
+
+[vars]
+APP_ENV = "production"
+NODE_ENV = "production"
