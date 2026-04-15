@@ -93,7 +93,7 @@ export default function MemberTasks() {
               className="overflow-hidden rounded-lg border border-border"
             >
               <Link
-                to={`/projects/${project.project_id}`}
+                to={`/app/projects/${project.project_id}`}
                 className="flex items-center gap-2 px-3 py-3 hover:bg-muted/50"
               >
                 <span className="font-medium">{project.project_name}</span>

@@ -53,7 +53,7 @@ export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
       <CardContent className="p-4">
         <div className="flex items-start justify-between">
           <Link
-            to={`/projects/${project.id}`}
+            to={`/app/projects/${project.id}`}
             className="flex-1 min-w-0 hover:opacity-80 transition-opacity"
           >
             <h3 className="font-semibold truncate">{project.name}</h3>

@@ -151,7 +151,7 @@ export default function MyTasks() {
                   <span className="min-w-0 flex-1 font-medium">{project.project_name}</span>
                   <Badge variant="secondary">{project.tasks.length}</Badge>
                   <Link
-                    to={`/projects/${project.project_id}`}
+                    to={`/app/projects/${project.project_id}`}
                     className="ml-0 text-sm text-primary hover:underline sm:ml-auto"
                     onClick={(e) => e.stopPropagation()}
                   >
