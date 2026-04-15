@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Link } from "react-router"
+import { Link, useNavigate } from "react-router"
 import { Button } from "~/components/ui/button"
 import { Input } from "~/components/ui/input"
 import { Label } from "~/components/ui/label"
@@ -9,6 +9,7 @@ import { useLogin, useRegister } from "~/api/hooks"
 import { toast } from "sonner"
 
 export default function Login() {
+  const navigate = useNavigate()
   const [isRegister, setIsRegister] = useState(false)
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
@@ -52,6 +53,7 @@ export default function Login() {
         await loginMutation.mutateAsync({ email, password })
         toast.success("Welcome back!")
       }
+      navigate("/app", { replace: true })
     } catch (error: any) {
       toast.error(error.message || "An error occurred")
       if (error.fields) {
