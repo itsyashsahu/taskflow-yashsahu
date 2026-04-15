@@ -19,7 +19,7 @@ export default function Layout() {
   return (
     <ProtectedRoute>
       <div className="min-h-svh bg-background">
-        <div className="flex h-14 items-center gap-3 border-b border-border px-4 lg:hidden">
+        <div className="sticky top-0 z-50 flex h-14 items-center gap-3 border-b border-border bg-background px-4 lg:hidden">
           <MobileSidebar />
           <Logo className="h-7" />
         </div>
